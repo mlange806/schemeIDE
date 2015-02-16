@@ -1,18 +1,30 @@
-import re
-
 tokenizer_header = """current = ''
 currentIndex = 0
+previousIndex = -1
 input = ""
-def tokenize(t_file):
-	print("hi")
+fileEnded = False
 
-def tokenize(t_string):
-	print("HI")
+def tokenize(tokenize_file):
+	input = ""
+	
+def tokenize(tokenize_string):
+	input = t_string
 
 def increment():
-	current = input[currentIndex]
-	currentIndex += 1	
+	if(currentIndex < len(input) - 1):
+		current = input[currentIndex]
+		currentIndex += 1
+	else:
+		fileEnded = true
 	
+"""
+#@TODO: Empty and EOF rules
+tokenizer_footer = """
+def EMPTY():
+	return True
+
+def EOF():
+	return fileEnded 
 """
 tokenizer_file = open("tokenizer.py", "w")
 
@@ -31,7 +43,12 @@ def main(file_name = "grammar.txt"):
 		#[""] Regular expression
 		#["{}"] Regular expression with rules
 
+	generate_first_sets(grammar)
+	generate_follow_sets(grammar)
+	generate_selection_sets(grammar)
+	
 	create_tokenizer(tokenizer_file, grammar)
+	write_tab(tokenizer_footer)
 
 def create_tokenizer(tokenizer_file, grammar):
 	for rule in sorted(iter(grammar)):
@@ -59,8 +76,10 @@ def print_body(tokenizer_file, body):
 			numTabs += 1
 		elif(element[0] == '['):
 			print_special(numTabs, element)
+			numTabs += 1
 		elif(len(element) == 1):
-			write_tab(numTabs, "if(
+			write_tab(numTabs, "if(current == '" + (element[0] if(element[0] != '\'' and element[0] != '\\') else "\\" + element[0]) + "'):\n")
+			numTabs += 1
 		else:
 			write_tab(numTabs, "match_string = \"" + escape(element) + "\"\n")
 			write_tab(numTabs, "match = True\n")
@@ -74,11 +93,45 @@ def print_body(tokenizer_file, body):
 
 
 def print_special(numTabs, expression):
-	write_tab(numTabs, "#"+expression)
+	write_tab(numTabs, "#"+expression + "\n")
+	expression = expression[1:-1]
+	operator = expression[-1]
+	if(operator == '*' or operator == '+'):
+		write_tab(numTabs, "iterativeMatch = " + ("True" if(operator == '*') else "False") + "\n")
+		write_tab(numTabs, "previousIndex = currentIndex\n")
+		write_tab(numTabs, "while(" + expression[1:-2] + "()):\n")
+		write_tab(numTabs + 1, "previousIndex = currentIndex\n")
+		write_tab(numTabs, "currentIndex = previousIndex\n")
+		write_tab(numTabs, "if(iterativeMatch):\n")
+		numTabs += 1
+	elif(expression[0] == '\\'):
+		write_tab(numTabs, "if(current == '" + expression + "'):\n")
+	else:
+		if(len(expression) == 1):
+			write_tab(numTabs, "if(current == '" + (expression[0] if(expression[0] != '\'' and expression[0] != '\\') else "\\" + expression[0]) + "'):\n")
+			numTabs += 1
+		else:
+			write_tab(numTabs, "match_string = \"" + escape(expression) + "\"\n")
+			write_tab(numTabs, "match = True\n")
+			write_tab(numTabs, "for i in range(len(match_string)):\n")
+			write_tab(numTabs + 1, "if(current != match_string[i]):\n")
+			write_tab(numTabs + 2, "match = False\n")
+			write_tab(numTabs + 2, "continue\n")
+			write_tab(numTabs, "if(match):\n")
+			numTabs += 1
+			
+def generate_first_sets(grammar):
+	return
+
+def generate_follow_sets(grammar):
+	return
+
+def generate_selection_sets(grammar):
+	return
 
 def escape(string):
-	escape_string = string.replace("\"", "\\\"")
-	escape_string = escape_string.replace("\\", "\\\\")
+	escape_string = string.replace("\\", "\\\\")
+	escape_string = escape_string.replace("\"", "\\\"")
 	return escape_string
 
 def write_tab(tabs, string=None):
@@ -111,13 +164,29 @@ def add_rule(grammar, line):
 	for char in rule_bodies:
 		body_buffer += char
 		if(char == '['):
+			if(in_brackets == 0 and in_braces == 0):
+				if(len(body_buffer) > 1):
+					rule_body.append(body_buffer[:-1])
+				body_buffer = "["
 			in_brackets += 1
 		elif(char == ']'):
 			in_brackets -= 1
+			if(in_brackets == 0 and in_braces == 0):
+				if(len(body_buffer) > 1):
+					rule_body.append(body_buffer)
+				body_buffer = ""
 		elif(char == '{'):
+			if(in_brackets == 0 and in_braces == 0):
+				if(len(body_buffer) > 1):
+					rule_body.append(body_buffer[:-1])
+				body_buffer = "{"
 			in_braces += 1
 		elif(char == '}'):
 			in_braces -= 1
+			if(in_brackets == 0 and in_braces == 0):
+				if(len(body_buffer) > 1):
+					rule_body.append(body_buffer)
+				body_buffer = ""
 		elif(char == ' '):
 			if(in_brackets == 0 and in_braces == 0):
 				if(len(body_buffer) > 1): #>1 checks for empty because ' ' was added
