@@ -1,5 +1,6 @@
 import tkinter as tk
 from subprocess import Popen, PIPE
+from tkinter import filedialog
 
 class SchemeIDE(tk.Frame):
     '''
@@ -105,7 +106,7 @@ class SchemeText(tk.Text):
         self.tag_configure("red", foreground="#ff0000")
         self.tag_configure("blue", foreground="#0000ff")
         self.tag_configure("green", foreground="#00ff00")
-        self.bind("<Key>", self.key)
+        self.bind("<KeyRelease>", self.key)
         
     def highlight_pattern(self, pattern, tag):
         '''Colors pattern with the color from tag.'''
@@ -124,9 +125,13 @@ class SchemeText(tk.Text):
 
     def key(self, event):
         '''Updates the text color on key presses.'''
+
+        #Start with a blank slate.
         self.tag_remove("red", '1.0', 'end')
         self.tag_remove("blue", '1.0', 'end')
-        self.tag_remove("green", '1.0', 'end')        
+        self.tag_remove("green", '1.0', 'end')    
+        
+        #Do keyword highlighting.
         self.highlight_pattern("(", "red")
         self.highlight_pattern(")", "red")
         self.highlight_pattern("define", "blue")

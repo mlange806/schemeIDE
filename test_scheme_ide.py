@@ -4,6 +4,7 @@ import tkinter.messagebox as MBox
 from scheme_ide import *
 import time
 import random
+import os
 
 class TestSchemeIDE(unittest.TestCase):
 	
@@ -14,6 +15,7 @@ class TestSchemeIDE(unittest.TestCase):
     def tearDown(self):
         try: self.root.destroy()
         except: pass
+        os.remove("test.txt")
 
     def _verify(self, name, question):
         '''
@@ -80,7 +82,7 @@ class TestSchemeIDE(unittest.TestCase):
         self.app.save_file()
 
         with open("test.txt") as test_file: test_data = test_file.read().strip()
-        self.assertTrue(test_data == test_message, 'Discrepancy when saving text file.')
+        self.assertTrue(test_data == test_message, 'Discrepancy when saving text file.')       
 
     def test_open(self):
         test_message = "test message (" + str(random.random()) + ")"
