@@ -3,12 +3,17 @@ import tkinter as tk
 import tkinter.messagebox as MBox
 from scheme_ide import *
 import time
-		
+import random
+
 class TestSchemeIDE(unittest.TestCase):
 	
     def setUp(self):
         self.root = tk.Tk()
         self.app = SchemeIDE(master=self.root)
+
+    def tearDown(self):
+        try: self.root.destroy()
+        except: pass
 
     def _verify(self, name, question):
         '''
@@ -66,7 +71,42 @@ class TestSchemeIDE(unittest.TestCase):
         self.app.mainloop()
         self.assertEqual(output, '4\n')
         
+    def test_save(self):
+        test_message = "test message (" + str(random.random()) + ")"
+        self.app.editor.insert('end', test_message)
+        self.app.run_code()
+        MBox.showinfo("Message", "When the save box appears, attempt to save the file as 'test.txt'"
+                      " in the current directory.")
+        self.app.save_file()
 
+        with open("test.txt") as test_file: test_data = test_file.read().strip()
+        self.assertTrue(test_data == test_message, 'Discrepancy when saving text file.')
+
+    def test_open(self):
+        test_message = "test message (" + str(random.random()) + ")"
+        with open("test.txt", "w") as test_file: test_file.write(test_message)
+        
+        #self.app.editor.insert('end', test_message)
+        self.app.run_code()
+        MBox.showinfo("Message", "When the open box appears, attempt to open the file 'test.txt'"
+                      " in the current directory.")
+        self.app.open_file()
+
+        self.assertTrue(self.app.editor.get_all().strip() == test_message, 'Discrepancy when opening text file.')
+
+    def test_text_entry(self):
+        self.charcount = 0
+        def handler(event):
+            self.charcount += 1
+            if self.charcount == 20:
+                self._verify("Test Text Entry", "Did text show up correctly?")
+
+        self.app.run_code()
+        self.app.editor.bind("<Key>", handler)
+
+        self.app.after(1000, MBox.showinfo, "Message", "Try typing 20 characters into the text box.")
+        self.app.mainloop()
+        self.assertTrue(self.gui_test_result, 'User reported problem entering text.')
 		
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(TestSchemeIDE)
