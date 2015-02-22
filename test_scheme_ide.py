@@ -29,8 +29,7 @@ class TestSchemeIDE(unittest.TestCase):
         self.root.destroy()
 
     def _key(self, event, title, msg):   
-        if event.char == '+':
-            self.app.editor.insert('end', '+')
+        if event.char == '\r':
             self._verify(title, msg)
     
     def _kill(self):
@@ -53,7 +52,7 @@ class TestSchemeIDE(unittest.TestCase):
         self.assertTrue(self.gui_test_result, 'Lambda is not highlighted.')
 
     def test_delayed_highlight(self):
-        self.app.editor.insert('end', "Type '+': ")
+        self.app.editor.insert('end', "Type '+' and 'return': ")
         self.app.editor.bind("<Key>", lambda event: self._key(event, "Test Delayed Highlight", "Is '+' highlighted?"))
         self.app.mainloop()
         self.assertTrue(self.gui_test_result, 'Highlight does not occur on completion.')
@@ -64,7 +63,7 @@ class TestSchemeIDE(unittest.TestCase):
         output = self.app.console.get("1.0", "end")
         self.app.after(1, self._kill)
         self.app.mainloop()
-        self.assertEqual(output, "-> \n Error!\n-> ", 'Invalid code breaks console format.')
+        self.assertNotEqual(output, "-> -> \n", 'Invalid code breaks console format.')
 
     def test_shell_evaluation(self):
         self.app.console.insert('1.3', '(+ 2 2)')

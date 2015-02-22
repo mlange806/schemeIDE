@@ -40,7 +40,9 @@ class SchemeIDE(tk.Frame):
         
     def create_console(self, r):
         '''Creates a console for program output.'''
-        self.console = SchemeShell(r,height=10,width=60,bg='black',fg='white')
+        self.console = tk.Text(r,height=10,width=60,bg='black',fg='white')
+        self.console.insert(tk.END, '-> ');
+        self.console.config(state=tk.DISABLED)
         self.console.pack()
 
     def run_code(self):
@@ -48,11 +50,14 @@ class SchemeIDE(tk.Frame):
         f = open('output.py', 'w')
         f.write(self.editor.get("1.0", tk.END))
         f.close()
-        #TODO: Change to Scheme evaluator.
+        #TODO: Change to Scheme evaluator. 
         p = Popen(['python', 'output.py'], stdout=PIPE, stderr=PIPE)
         output, err = p.communicate()
         self.console.config(state=tk.NORMAL)
-        self.console.insert(tk.END, output)
+
+        if len(output+err) == 0: self.console.insert(tk.END, '\n')
+        else: self.console.insert(tk.END, output+err)
+
         self.console.insert(tk.END, '-> ')
         self.console.config(state=tk.DISABLED)
 
@@ -90,8 +95,6 @@ class SchemeShell(tk.Text):
             self.insert('end', '\n')
             self.insert('end', '-> ')
             self.mark_set('insert', '1.3')
-
-            
 
 class SchemeText(tk.Text):
     '''
