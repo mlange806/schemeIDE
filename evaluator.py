@@ -152,4 +152,6 @@ def is_rational(value):
 def debug_print(str):
 	#print(str) #Turn off this comment to enable debug printing
 	str = ""
-main()
+
+if __name__ == '__main__':
+    main()

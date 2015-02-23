@@ -1,6 +1,7 @@
 import tkinter as tk
 from subprocess import Popen, PIPE
 from tkinter import filedialog
+import evaluator as ev
 
 class SchemeIDE(tk.Frame):
     '''
@@ -47,16 +48,17 @@ class SchemeIDE(tk.Frame):
 
     def run_code(self):
         '''Runs (python) code in editor and displays stdout in console.'''
-        f = open('output.py', 'w')
-        f.write(self.editor.get("1.0", tk.END))
-        f.close()
-        #TODO: Change to Scheme evaluator. 
-        p = Popen(['python', 'output.py'], stdout=PIPE, stderr=PIPE)
-        output, err = p.communicate()
-        self.console.config(state=tk.NORMAL)
 
-        if len(output+err) == 0: self.console.insert(tk.END, '\n')
-        else: self.console.insert(tk.END, output+err)
+        exp = self.editor.get("1.0", tk.END)
+
+        try:
+            output = ev.evaluate(exp)    
+            self.console.config(state=tk.NORMAL)
+            self.console.insert('end', output)
+            self.console.insert('end', '\n')
+        except:
+            self.console.insert('end', 'Error!')
+            self.console.insert('end', '\n')
 
         self.console.insert(tk.END, '-> ')
         self.console.config(state=tk.DISABLED)
