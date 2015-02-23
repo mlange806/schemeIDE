@@ -8,7 +8,6 @@ class SchemeIDE(tk.Frame):
     Scheme IDE
 
     This is the main application window.   
-    IMPORTANT: Currently only runs Python code for demo purposes.
     '''
 
     def __init__(self, master=None):
@@ -47,7 +46,7 @@ class SchemeIDE(tk.Frame):
         self.console.pack()
 
     def run_code(self):
-        '''Runs (python) code in editor and displays stdout in console.'''
+        '''Evaluates Scheme expression in editor and displays result in console.'''
 
         exp = self.editor.get("1.0", tk.END)
 
