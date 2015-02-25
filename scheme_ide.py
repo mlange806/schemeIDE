@@ -62,15 +62,16 @@ class SchemeIDE(tk.Frame):
         self.console.insert(tk.END, '-> ')
         self.console.config(state=tk.DISABLED)
 
-    def open_file(self):
-        path = tk.filedialog.askopenfilename(parent=self)
+    def open_file(self, testMode=False, path=None):
+        
+        if not testMode: path = tk.filedialog.askopenfilename(parent=self)
         if path == None: return
         file = open(path, "r")
         self.editor.set_all(file.read())
         file.close()
 
-    def save_file(self):
-        path = tk.filedialog.asksaveasfilename(parent=self)
+    def save_file(self, testMode=False, path=None):
+        if not testMode: path = tk.filedialog.asksaveasfilename(parent=self)
         if path == None: return
         file = open(path, "w")
         file.write(self.editor.get_all())
