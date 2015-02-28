@@ -1,4 +1,5 @@
 486
+(2 2)
 (+ 137 349)
 (- 1000 334)
 (* 5 99)
@@ -9,3 +10,9 @@
 (+ (* 3 5) (- 10 6))
 (+ (* 3 (+ (* 2 4) (+ 3 5))) (+ (- 10 7) 6))
 (* (+ 2 (* 4 6))  (+ 3 5 7))
+(define (square x) (* x x))
+(define (sum-of-squares x y)(+ (square x) (square y)))
+(square 5)
+(square (square 3))
+(sum-of-squares 3 4)
+(sum-of-squares (square 3) (square 4))

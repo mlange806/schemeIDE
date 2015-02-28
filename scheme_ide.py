@@ -1,4 +1,5 @@
 import tkinter as tk
+from evaluator import evaluate
 from subprocess import Popen, PIPE
 
 class SchemeIDE(tk.Frame):
@@ -45,12 +46,8 @@ class SchemeIDE(tk.Frame):
 
     def run_code(self):
         '''Runs (python) code in editor and displays stdout in console.'''
-        f = open('output.py', 'w')
-        f.write(self.editor.get("1.0", tk.END))
-        f.close()
-        #TODO: Change to Scheme evaluator.
-        p = Popen(['python', 'output.py'], stdout=PIPE, stderr=PIPE)
-        output, err = p.communicate()
+        input = self.editor.get("1.0", tk.END)
+        output = evaluate(input)
         self.console.config(state=tk.NORMAL)
         self.console.insert(tk.END, output)
         self.console.insert(tk.END, '-> ')
