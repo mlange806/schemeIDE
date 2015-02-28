@@ -1,13 +1,13 @@
 import tkinter as tk
-from evaluator import evaluate
 from subprocess import Popen, PIPE
+from tkinter import filedialog
+import evaluator as ev
 
 class SchemeIDE(tk.Frame):
     '''
     Scheme IDE
 
     This is the main application window.   
-    IMPORTANT: Currently only runs Python code for demo purposes.
     '''
 
     def __init__(self, master=None):
@@ -34,40 +34,84 @@ class SchemeIDE(tk.Frame):
 
     def create_editor(self, r):
         '''Creates a text box that a user can type code into.'''
-        self.editor = SchemeText(r, height=20, width=60, bg='black', \
+        self.editor = SchemeEditor(r, height=20, width=60, bg='black', \
                                  fg='white', insertbackground='blue')
+        self.editor.pack()
         
     def create_console(self, r):
         '''Creates a console for program output.'''
-        self.console = tk.Text(r,height=10,width=60,bg='black',fg='white')
-        self.console.insert(tk.END, '-> ');
-        self.console.config(state=tk.DISABLED)
+        self.console = SchemeShell(r,height=10,width=60,bg='black',fg='white')
         self.console.pack()
 
     def run_code(self):
-        '''Runs (python) code in editor and displays stdout in console.'''
-        input = self.editor.get("1.0", tk.END)
-        output = evaluate(input)
-        self.console.config(state=tk.NORMAL)
-        self.console.insert(tk.END, output)
+        '''Evaluates Scheme expression in editor and displays result in console.'''
+
+        exp = self.editor.get("1.0", tk.END)
+
+        try:
+            output = ev.evaluate(exp)    
+            self.console.config(state=tk.NORMAL)
+            self.console.insert('end', output)
+            self.console.insert('end', '\n')
+        except:
+            self.console.insert('end', 'Error!')
+            self.console.insert('end', '\n')
+
         self.console.insert(tk.END, '-> ')
         self.console.config(state=tk.DISABLED)
 
-    def open_file(self):
-        path = tk.filedialog.askopenfilename(parent=self)
+    def open_file(self, testMode=False, path=None):
+        
+        if not testMode: path = tk.filedialog.askopenfilename(parent=self)
         if path == None: return
         file = open(path, "r")
         self.editor.set_all(file.read())
         file.close()
 
-    def save_file(self):
-        path = tk.filedialog.asksaveasfilename(parent=self)
+    def save_file(self, testMode=False, path=None):
+        if not testMode: path = tk.filedialog.asksaveasfilename(parent=self)
         if path == None: return
         file = open(path, "w")
         file.write(self.editor.get_all())
         file.close()
 
-class SchemeText(tk.Text):
+class SchemeShell(tk.Text):
+    '''
+    Scheme Shell
+
+    Shell widget that allows a user to type a line of Scheme and evaluate it.
+    '''
+
+    def __init__(self, *args, **kwargs):
+        tk.Text.__init__(self, *args, **kwargs)
+
+        self.line = 1
+
+        self.insert('end', '-> ')
+        self.bind("<KeyRelease>", self._key)
+        self.bind("<BackSpace>", self._backspace)
+
+    def _backspace(self, event):
+        '''Prevents the user from deleting previous information.'''
+
+        pos = str(self.line) + '.3'
+
+        if self.index('insert') == pos:
+            return 'break'
+        
+
+    def _key(self, event):
+        if event.char == '\r':
+            pos = str(self.line)+'.3'
+            out = self.get(pos, 'end')
+            out = ev.evaluate(out)
+
+            self.insert('end', str(out)+'\n')
+            self.insert('end', '-> ')
+
+            self.line = self.line + 2
+
+class SchemeEditor(tk.Text):
     '''
     Scheme Text
     
@@ -80,8 +124,7 @@ class SchemeText(tk.Text):
         self.tag_configure("red", foreground="#ff0000")
         self.tag_configure("blue", foreground="#0000ff")
         self.tag_configure("green", foreground="#00ff00")
-        self.bind("<Key>", self.key)
-        self.pack()
+        self.bind("<KeyRelease>", self.key)
         
     def highlight_pattern(self, pattern, tag):
         '''Colors pattern with the color from tag.'''
@@ -100,9 +143,13 @@ class SchemeText(tk.Text):
 
     def key(self, event):
         '''Updates the text color on key presses.'''
+
+        #Start with a blank slate.
         self.tag_remove("red", '1.0', 'end')
         self.tag_remove("blue", '1.0', 'end')
-        self.tag_remove("green", '1.0', 'end')        
+        self.tag_remove("green", '1.0', 'end')    
+        
+        #Do keyword highlighting.
         self.highlight_pattern("(", "red")
         self.highlight_pattern(")", "red")
         self.highlight_pattern("define", "blue")
