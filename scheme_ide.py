@@ -34,15 +34,13 @@ class SchemeIDE(tk.Frame):
 
     def create_editor(self, r):
         '''Creates a text box that a user can type code into.'''
-        self.editor = SchemeText(r, height=20, width=60, bg='black', \
+        self.editor = SchemeEditor(r, height=20, width=60, bg='black', \
                                  fg='white', insertbackground='blue')
         self.editor.pack()
         
     def create_console(self, r):
         '''Creates a console for program output.'''
-        self.console = tk.Text(r,height=10,width=60,bg='black',fg='white')
-        self.console.insert(tk.END, '-> ');
-        self.console.config(state=tk.DISABLED)
+        self.console = SchemeShell(r,height=10,width=60,bg='black',fg='white')
         self.console.pack()
 
     def run_code(self):
@@ -85,20 +83,35 @@ class SchemeShell(tk.Text):
     '''
 
     def __init__(self, *args, **kwargs):
-        self.line = 1
         tk.Text.__init__(self, *args, **kwargs)
+
+        self.line = 1
+
         self.insert('end', '-> ')
-        self.bind("<Key>", self._key)
+        self.bind("<KeyRelease>", self._key)
+        self.bind("<BackSpace>", self._backspace)
+
+    def _backspace(self, event):
+        '''Prevents the user from deleting previous information.'''
+
+        pos = str(self.line) + '.3'
+
+        if self.index('insert') == pos:
+            return 'break'
+        
 
     def _key(self, event):
         if event.char == '\r':
-            print(self.get(str(self.line)+'.3', 'end'))
-            self.line = self.line + 1
-            self.insert('end', '\n')
-            self.insert('end', '-> ')
-            self.mark_set('insert', '1.3')
+            pos = str(self.line)+'.3'
+            out = self.get(pos, 'end')
+            out = ev.evaluate(out)
 
-class SchemeText(tk.Text):
+            self.insert('end', str(out)+'\n')
+            self.insert('end', '-> ')
+
+            self.line = self.line + 2
+
+class SchemeEditor(tk.Text):
     '''
     Scheme Text
     
