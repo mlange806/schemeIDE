@@ -12,7 +12,7 @@ class SchemeIDETest(unittest.TestCase):
 
     Todo: Check for the existence of test.txt. I can see someone running this in the wrong directory and deleting a pre-existing test.txt.
     '''
-	
+        
     def setUp(self):
         self.root = tk.Tk()
         self.app = AppStub(master=self.root)
@@ -53,7 +53,7 @@ class SchemeIDETest(unittest.TestCase):
         self.app.run_code()
         result = self.app.console.get("1.3", "1.4")
         self.assertEqual(result, '4', 'Console did not output 4.')
-		
+                
     def test_highlight_lambda(self):
         '''Verifies keyword highlighting for typed lambda in the editor.'''
 
@@ -150,7 +150,7 @@ def create_suite():
     suite.addTest(SchemeIDETest('test_open'))
     suite.addTest(SchemeIDETest('test_text_entry'))
     return suite
-    	
+            
 if __name__ == '__main__':
     suite = create_suite()
     unittest.TextTestRunner(verbosity=2).run(suite)
