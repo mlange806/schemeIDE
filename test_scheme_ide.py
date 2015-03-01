@@ -10,13 +10,14 @@ class SchemeIDETest(unittest.TestCase):
     '''
     Scheme IDE Test
 
-    Todo: Check for the existence of test.txt. I can see someone running this in the wrong directory and deleting a pre-existing test.txt.
+    Tests the front end of this application as well as some functionality of the evaluator.
     '''
 	
     def setUp(self):
         '''This is called every time a test method is run.'''
         self.root = tk.Tk()
         self.app = AppStub(master=self.root)
+        #Todo: Check for the existence of test.txt.
         open("test.txt", 'a')
 
     def tearDown(self):
@@ -28,14 +29,34 @@ class SchemeIDETest(unittest.TestCase):
         '''Prevents unittest from displaying docstrings on every run.'''
         return None
     
-    def test_run_code(self):
+    def test_basic_run(self):
         '''Verifies console output after running code.'''
         
-        self.app.editor.delete('1.0', 'end')
         self.app.editor.insert('end', "(+ 2 2)")
         self.app.run_code()
         result = self.app.console.get("2.0", "2.1")
         self.assertEqual(result, '4', 'Console did not output 4.')
+
+    def test_multiple_runs(self):
+        '''Test console output after three runs.'''
+
+        self.app.editor.insert('end', "(* 131 18 7)")
+        self.app.run_code()
+        result = self.app.console.get("2.0", "2.5")
+        self.assertEqual(result, '16506', 'Console did not output 16506.')
+        
+        self.app.editor.delete('1.0', 'end')
+        self.app.editor.insert('end', "!!!")
+        self.app.run_code()
+        result = self.app.console.get("4.0", "4.4")
+        self.assertEqual(result, 'None', 'Console did not output None.')
+
+        self.app.editor.delete('1.0', 'end')
+        self.app.editor.insert('end', "(+ (* 6 6) 18)")
+        self.app.run_code()
+        result = self.app.console.get("6.0", "6.2")
+        self.assertEqual(result, '54', 'Console did not output 54.')
+        
 		
     def test_highlight_lambda(self):
         '''Verifies keyword highlighting for typed lambda in the editor.'''
@@ -101,15 +122,28 @@ class SchemeIDETest(unittest.TestCase):
     def test_shell_evaluation(self):
         '''Verifies that the shell can take expressions and evaluate them.'''
 
-        pos = str(self.app.console.line) + '.3'
-        self.app.console.insert(pos, '(* 6 6)')
-
+        self.app.console.insert('1.3', '(* 6 6)')
         self.app.press_key('\r', 'console')
-        
-        x = str(self.app.console.line-1) + '.0'
-        y = str(self.app.console.line-1) + '.2'
-        out = self.app.console.get(x, y)
+        out = self.app.console.get('2.0', '2.2')
         self.assertEqual(out, '36')
+
+    def test_multiple_shell_evaluations(self):
+        '''Tests shell evaluations when given multiple expressions.'''
+
+        self.app.console.insert('1.3', '(* 6 6)')
+        self.app.press_key('\r', 'console')
+        out = self.app.console.get('2.0', '2.2')
+        self.assertEqual(out, '36')
+
+        self.app.console.insert('3.3', '!!!')
+        self.app.press_key('\r', 'console')
+        out = self.app.console.get('4.0', '4.4')
+        self.assertEqual(out, 'None')
+
+        self.app.console.insert('5.3', '(* (+ 18 19) 200)')
+        self.app.press_key('\r', 'console')
+        out = self.app.console.get('6.0', '6.4')
+        self.assertEqual(out, '7400')
 
 class EventStub: 
     '''Pretend event stub for methods that take an event argument.'''
@@ -135,7 +169,8 @@ class AppStub(SchemeIDE):
 
 def create_suite():
     suite = unittest.TestSuite()
-    suite.addTest(SchemeIDETest('test_run_code'))
+    suite.addTest(SchemeIDETest('test_basic_run'))
+    suite.addTest(SchemeIDETest('test_multiple_runs'))
     suite.addTest(SchemeIDETest('test_highlight_lambda'))
     suite.addTest(SchemeIDETest('test_delayed_highlight'))
     suite.addTest(SchemeIDETest('test_double_arrow'))
@@ -143,6 +178,7 @@ def create_suite():
     suite.addTest(SchemeIDETest('test_open'))
     suite.addTest(SchemeIDETest('test_text_entry'))
     suite.addTest(SchemeIDETest('test_shell_evaluation'))
+    suite.addTest(SchemeIDETest('test_multiple_shell_evaluations'))
     return suite
     	
 if __name__ == '__main__':

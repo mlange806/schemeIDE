@@ -101,7 +101,7 @@ class SchemeShell(tk.Text):
         try:
             output = ev.evaluate(exp)  
             self.insert('end', 'run\n')  
-            self.insert('end', output)
+            self.insert('end', str(output))
             self.insert('end', '\n')
         except:
             self.insert('end', 'Error!')
