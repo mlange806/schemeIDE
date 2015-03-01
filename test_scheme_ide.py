@@ -14,6 +14,7 @@ class SchemeIDETest(unittest.TestCase):
     '''
 	
     def setUp(self):
+        '''This is called every time a test method is run.'''
         self.root = tk.Tk()
         self.app = AppStub(master=self.root)
         open("test.txt", 'a')
@@ -26,24 +27,6 @@ class SchemeIDETest(unittest.TestCase):
     def shortDescription(self):
         '''Prevents unittest from displaying docstrings on every run.'''
         return None
-
-    def _verify(self, name, question):
-        '''
-        Asks the user to verify editor GUI functionality. Sets switch if a failure occurs.
-        At the end, destroys the editor stub which is in the mainloop by the time this 
-        method is called.
-        '''
-        self.gui_test_result = True
-        result = MBox.askquestion(name, question)
-        if result == 'no': self.gui_test_result = False
-        self.root.destroy()
-
-    def _key(self, event, title, msg):   
-        if event.char == '\r':
-            self._verify(title, msg)
-    
-    def _kill(self):
-        self.root.destroy()
     
     def test_run_code(self):
         '''Verifies console output after running code.'''
@@ -51,7 +34,7 @@ class SchemeIDETest(unittest.TestCase):
         self.app.editor.delete('1.0', 'end')
         self.app.editor.insert('end', "(+ 2 2)")
         self.app.run_code()
-        result = self.app.console.get("1.3", "1.4")
+        result = self.app.console.get("2.0", "2.1")
         self.assertEqual(result, '4', 'Console did not output 4.')
 		
     def test_highlight_lambda(self):
@@ -71,7 +54,7 @@ class SchemeIDETest(unittest.TestCase):
         '''Test for delayed keyword highlighting issue.'''
 
         self.app.editor.delete('1.0', 'end')        
-        self.app.press_key('+')
+        self.app.press_key('+', 'editor')
         
         x, y = self.app.editor.tag_ranges('green')
         tag_range = (str(x), str(y))    
@@ -88,15 +71,6 @@ class SchemeIDETest(unittest.TestCase):
         output = self.app.console.get("1.0", "end")
         self.assertNotEqual(output, "-> -> \n")
 
-    def test_shell_evaluation(self):
-        '''Test for shell '''
-
-        self.app.console.insert('1.3', '(+ 2 2)')
-        output = self.app.console.get('2.0' '3.0')
-        self.app.after(1, self._kill)
-        self.app.mainloop()
-        self.assertEqual(output, '4\n')
-        
     def test_save(self):
         '''Verifies saving a file with minimal mocking.'''
         
@@ -122,7 +96,20 @@ class SchemeIDETest(unittest.TestCase):
 
         self.app.editor.delete('1.0', 'end') 
         for x in range(20):
-            self.app.press_key(str(x))
+            self.app.press_key(str(x),'editor')
+    
+    def test_shell_evaluation(self):
+        '''Verifies that the shell can take expressions and evaluate them.'''
+
+        pos = str(self.app.console.line) + '.3'
+        self.app.console.insert(pos, '(* 6 6)')
+
+        self.app.press_key('\r', 'console')
+        
+        x = str(self.app.console.line-1) + '.0'
+        y = str(self.app.console.line-1) + '.2'
+        out = self.app.console.get(x, y)
+        self.assertEqual(out, '36')
 
 class EventStub: 
     '''Pretend event stub for methods that take an event argument.'''
@@ -135,10 +122,16 @@ class AppStub(SchemeIDE):
     def __init__(self, *args, **kwargs):
         SchemeIDE.__init__(self, *args, **kwargs)    
 
-    def press_key(self, c):
+    def press_key(self, c, widget):
         '''Simulates a keypress where handler is called on release.'''
-        self.editor.insert('end', c)
-        self.editor.key(EventStub(c))
+
+        if widget == 'editor':
+            self.editor.insert('end', c)
+            self.editor.key(EventStub(c))
+        if widget == 'console':
+            if c == '\r':
+                self.console.insert('end', '\n')
+                self.console._key(EventStub(c))
 
 def create_suite():
     suite = unittest.TestSuite()
@@ -149,6 +142,7 @@ def create_suite():
     suite.addTest(SchemeIDETest('test_save'))
     suite.addTest(SchemeIDETest('test_open'))
     suite.addTest(SchemeIDETest('test_text_entry'))
+    suite.addTest(SchemeIDETest('test_shell_evaluation'))
     return suite
     	
 if __name__ == '__main__':
