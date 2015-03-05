@@ -145,6 +145,38 @@ class SchemeIDETest(unittest.TestCase):
         out = self.app.console.get('6.0', '6.4')
         self.assertEqual(out, '7400')
 
+    def test_tutorial_feedback_on_correct(self):
+        '''Tests that tutorial can identify correct output (e.g. 4)'''
+        
+        self.app.create_tutorial()
+        tutorial = self.app.tutorial()
+        console = self.app.console()
+
+        #Simulate a user typing in input.
+        console.insert('1.3', '(+ 2 2)')
+        self.app.press_key('\r', 'console')
+        
+        #Simulate a user checking his answer.
+        tutorial.check()
+        
+        self.assertTrue(tutorial.feedback())
+
+    def test_tutorial_feedback_on_incorrect(self):
+        '''Tests that tutorial can identify incorrect output (e.g. 3)'''
+        
+        self.app.create_tutorial()
+        tutorial = self.app.tutorial()
+        console = self.app.console()
+
+        #Simulate a user typing in input.
+        console.insert('1.3', '(+ 1 2)')
+        self.app.press_key('\r', 'console')
+        
+        #Simulate a user checking his answer.
+        tutorial.check()
+        
+        self.assertTrue(not tutorial.feedback())
+        
 class EventStub: 
     '''Pretend event stub for methods that take an event argument.'''
     def __init__(self, c):        
@@ -179,6 +211,8 @@ def create_suite():
     suite.addTest(SchemeIDETest('test_text_entry'))
     suite.addTest(SchemeIDETest('test_shell_evaluation'))
     suite.addTest(SchemeIDETest('test_multiple_shell_evaluations'))
+    suite.addTest(SchemeIDETest('test_tutorial_feedback_on_correct'))
+    suite.addTest(SchemeIDETest('test_tutorial_feedback_on_incorrect'))    
     return suite
     	
 if __name__ == '__main__':
