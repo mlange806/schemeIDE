@@ -176,6 +176,24 @@ class SchemeIDETest(unittest.TestCase):
         tutorial.check()
         
         self.assertTrue(not tutorial.feedback())
+
+    def test_tutorial_creation(self):
+        '''Unit test for Tutorial constructor method.'''
+
+        tutorial = Tutorial(self.root)
+
+        self.assertTrue('tutorial' in locals())
+        self.assertTrue(hasattr(tutorial, 'title'))
+        self.assertTrue(type(tutorial.title) is tk.Text)
+ 
+        self.assertTrue(hasattr(tutorial, 'instr'))
+        self.assertTrue(type(tutorial.instr) is tk.Text)
+
+        self.assertTrue(hasattr(tutorial, 'check'))
+        self.assertTrue(type(tutorial.check) is tk.Button)
+
+        self.assertTrue(hasattr(tutorial, 'feedback'))
+        self.assertTrue(type(tutorial.feedback) is tk.Text)
         
 class EventStub: 
     '''Pretend event stub for methods that take an event argument.'''
@@ -212,7 +230,8 @@ def create_suite():
     suite.addTest(SchemeIDETest('test_shell_evaluation'))
     suite.addTest(SchemeIDETest('test_multiple_shell_evaluations'))
     suite.addTest(SchemeIDETest('test_tutorial_feedback_on_correct'))
-    suite.addTest(SchemeIDETest('test_tutorial_feedback_on_incorrect'))    
+    suite.addTest(SchemeIDETest('test_tutorial_feedback_on_incorrect'))
+    suite.addTest(SchemeIDETest('test_tutorial_creation'))     
     return suite
     	
 if __name__ == '__main__':
