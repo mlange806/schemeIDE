@@ -46,9 +46,19 @@ class SchemeIDE(tk.Frame):
     def run_code(self):
         '''Evaluates Scheme expression in editor and displays result in console.'''
 
-        exp = self.editor.get("1.0", 'end')
-        print(repr(exp))
-        self.console.run(exp)
+        exp = self.editor.get("1.0", tk.END)
+
+        try:
+            output = ev.evaluate(exp)    
+            self.console.config(state=tk.NORMAL)
+            self.console.insert('end', output)
+            self.console.insert('end', '\n')
+        except:
+            self.console.insert('end', 'Error!')
+            self.console.insert('end', '\n')
+
+        self.console.insert(tk.END, '-> ')
+        self.console.config(state=tk.DISABLED)
 
     def open_file(self, testMode=False, path=None):
         
@@ -83,6 +93,7 @@ class SchemeShell(tk.Text):
 
     def _backspace(self, event):
         '''Prevents the user from deleting previous information.'''
+
         pos = str(self.line) + '.3'
 
         if self.index('insert') == pos:
@@ -94,6 +105,7 @@ class SchemeShell(tk.Text):
             pos = str(self.line)+'.3'
             out = self.get(pos, 'end')
             out = ev.evaluate(out)
+
             self.insert('end', str(out)+'\n')
             self.new_line()
     

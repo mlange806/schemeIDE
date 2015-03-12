@@ -11,8 +11,10 @@ class SchemeIDETest(unittest.TestCase):
     Scheme IDE Test
 
     Tests the front end of this application as well as some functionality of the evaluator.
-    '''
 	
+    Todo: Check for the existence of test.txt. I can see someone running this in the wrong directory and deleting a pre-existing test.txt.
+    '''
+        
     def setUp(self):
         '''This is called every time a test method is run.'''
         self.root = tk.Tk()
@@ -56,27 +58,32 @@ class SchemeIDETest(unittest.TestCase):
         self.app.run_code()
         result = self.app.console.get("6.0", "6.2")
         self.assertEqual(result, '54', 'Console did not output 54.')
+    
+    def test_run_code(self):
+        '''Verifies console output after running code.'''
         
-		
+        self.app.editor.delete('1.0', 'end')
+        self.app.editor.insert('end', "(+ 2 2)")
+        self.app.run_code()
+        result = self.app.console.get("1.3", "1.4")
+        self.assertEqual(result, '4', 'Console did not output 4.')
+               
     def test_highlight_lambda(self):
         '''Verifies keyword highlighting for typed lambda in the editor.'''
 
         self.app.editor.delete('1.0', 'end')
         self.app.editor.insert('end', '(lambda other stuff)')
         self.app.editor.highlight_pattern('lambda', 'red')
-
         x, y = self.app.editor.tag_ranges('red')
         tag_range = (str(x), str(y))
         expected = ('1.1', '1.7')
-        
         self.assertEqual(expected, tag_range)
 
     def test_delayed_highlight(self):
         '''Test for delayed keyword highlighting issue.'''
 
         self.app.editor.delete('1.0', 'end')        
-        self.app.press_key('+', 'editor')
-        
+        self.app.press_key('+', 'editor')        
         x, y = self.app.editor.tag_ranges('green')
         tag_range = (str(x), str(y))    
         expected = ('1.0', '1.1')     
@@ -219,8 +226,7 @@ class AppStub(SchemeIDE):
 
 def create_suite():
     suite = unittest.TestSuite()
-    suite.addTest(SchemeIDETest('test_basic_run'))
-    suite.addTest(SchemeIDETest('test_multiple_runs'))
+    suite.addTest(SchemeIDETest('test_run_code'))
     suite.addTest(SchemeIDETest('test_highlight_lambda'))
     suite.addTest(SchemeIDETest('test_delayed_highlight'))
     suite.addTest(SchemeIDETest('test_double_arrow'))
@@ -233,7 +239,7 @@ def create_suite():
     suite.addTest(SchemeIDETest('test_tutorial_feedback_on_incorrect'))
     suite.addTest(SchemeIDETest('test_tutorial_creation'))     
     return suite
-    	
+            
 if __name__ == '__main__':
     suite = create_suite()
     unittest.TextTestRunner(verbosity=2).run(suite)
