@@ -46,7 +46,8 @@ class SchemeIDE(tk.Frame):
     def run_code(self):
         '''Evaluates Scheme expression in editor and displays result in console.'''
 
-        exp = self.editor.get("1.0", tk.END)
+        exp = self.editor.get("1.0", 'end')
+        print(repr(exp))
         self.console.run(exp)
 
     def open_file(self, testMode=False, path=None):
