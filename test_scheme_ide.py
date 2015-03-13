@@ -65,7 +65,7 @@ class SchemeIDETest(unittest.TestCase):
         self.app.editor.delete('1.0', 'end')
         self.app.editor.insert('end', "(+ 2 2)")
         self.app.run_code()
-        result = self.app.console.get("1.3", "1.4")
+        result = self.app.console.get("2.0", "2.1")
         self.assertEqual(result, '4', 'Console did not output 4.')
                
     def test_highlight_lambda(self):
