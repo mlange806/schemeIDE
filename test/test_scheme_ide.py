@@ -244,7 +244,251 @@ class SchemeIDETest(unittest.TestCase):
     def test_four_operator_addition(self):
         out = ev.evaluate('(+ 21 35 12 7)')
         self.assertEqual(out, 75)
-        
+    
+    def test_evaluator_1(self):
+        out = ev.evaluate('486')
+        self.assertEqual(out, 486)
+
+    def test_evaluator_2(self):
+        out = ev.evaluate('(+ 137 349)')
+        self.assertEqual(out, 486)
+
+    def test_evaluator_3(self):
+        out = ev.evaluate('(- 1000 334)')
+        self.assertEqual(out, 666)
+
+    def test_evaluator_4(self):
+        out = ev.evaluate('(* 5 99)')
+        self.assertEqual(out, 495)
+
+    def test_evaluator_5(self):
+        out = ev.evaluate('(/ 10 5)')
+        self.assertEqual(out, 2)
+
+    def test_evaluator_6(self):
+        out = ev.evaluate('(- 5)')
+        self.assertEqual(out, -5)
+
+    def test_evaluator_7(self):
+        out = ev.evaluate('(- 5 -3 (- 4))')
+        self.assertEqual(out, 12)
+
+    def test_evaluator_8(self):
+        out = ev.evaluate('(+ 2.7 10)')
+        self.assertEqual(out, 12.7)
+
+    def test_evaluator_9(self):
+        out = ev.evaluate('(+ 21 35 12 7)')
+        self.assertEqual(out, 75)
+
+    def test_evaluator_10(self):
+        out = ev.evaluate('(* 25 4 12)')
+        self.assertEqual(out, 1200)
+
+    def test_evaluator_11(self):
+        out = ev.evaluate('(+ (* 3 5) (- 10 6))')
+        self.assertEqual(out, 19)
+
+    def test_evaluator_12(self):
+        out = ev.evaluate('(+ (* 3 (+ (* 2 4) (+ 3 5))) (+ (- 10 7) 6))')
+        self.assertEqual(out, 57)
+
+    def test_evaluator_13(self):
+        out = ev.evaluate('(* (+ 2 (* 4 6))  (+ 3 5 7))')
+        self.assertEqual(out, 390)
+
+    def test_evaluator_14(self):
+        out = ev.evaluate('(define pi 3.14159)')
+        self.assertEqual(out, None)
+
+    def test_evaluator_15(self):
+        out = ev.evaluate('(define radius 10)')
+        self.assertEqual(out, None)
+
+    def test_evaluator_16(self):
+        out = ev.evaluate('(* pi (* radius radius))')
+        self.assertEqual(out, 314.159)
+
+    def test_evaluator_17(self):
+        out = ev.evaluate('(define circumference (* 2 pi radius))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_18(self):
+        out = ev.evaluate('circumference')
+        self.assertEqual(out, 62.8318)
+
+    def test_evaluator_19(self):
+        out = ev.evaluate('(define (square x) (* x x))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_20(self):
+        out = ev.evaluate('(define (sum-of-squares x y)(+ (square x) (square y)))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_21(self):
+        out = ev.evaluate('(square 5)')
+        self.assertEqual(out, 25)
+
+    def test_evaluator_22(self):
+        out = ev.evaluate('(square (square 3))')
+        self.assertEqual(out, 81)
+
+    def test_evaluator_23(self):
+        out = ev.evaluate('(sum-of-squares 3 4)')
+        self.assertEqual(out, 25)
+
+    def test_evaluator_24(self):
+        out = ev.evaluate('(sum-of-squares (square 3) (square 4))')
+        self.assertEqual(out, 337)
+
+    def test_evaluator_25(self):
+        out = ev.evaluate('(define (f a)(sum-of-squares (+ a 1) (* a 2)))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_26(self):
+        out = ev.evaluate('(f 5)')
+        self.assertEqual(out, 136)
+
+    def test_evaluator_27(self):
+        out = ev.evaluate('(define a 3)')
+        self.assertEqual(out, )
+
+    def test_evaluator_28(self):
+        out = ev.evaluate('(define b (+ a 1))')
+        self.assertEqual(out, )
+
+    def test_evaluator_29(self):
+        out = ev.evaluate('(+ a b (* a b))')
+        self.assertEqual(out, 19)
+
+    def test_evaluator_30(self):
+        out = ev.evaluate('(> a b)')
+        self.assertEqual(out, False)
+
+    def test_evaluator_31(self):
+        out = ev.evaluate('(if (and (> b a) (< b (* a b))) b a)')
+        self.assertEqual(out, 4)
+
+    def test_evaluator_32(self):
+        out = ev.evaluate('(cond ((= a 4) 6) ((= b 4) (+ 6 7 a)) (else 25))')
+        self.assertEqual(out, 16)
+
+    def test_evaluator_33(self):
+        out = ev.evaluate('(+ 2 (if (> b a) b a))')
+        self.assertEqual(out, 6)
+
+    def test_evaluator_34(self):
+        out = ev.evaluate('(* (cond ((> a b) a) ((< a b) b) (else -1)) (+ a 1))')
+        self.assertEqual(out, 16)
+
+    def test_evaluator_35(self):
+        out = ev.evaluate('(define (abs x)(cond ((< x 0) (- x))(else x)))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_36(self):
+        out = ev.evaluate('(define (average x y)(/ (+ x y) 2))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_37(self):
+        out = ev.evaluate('(define (improve guess x)(average guess (/ x guess)))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_38(self):
+        out = ev.evaluate('(define (good-enough? guess x)(< (abs (-(square guess) x)) 0.001))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_39(self):
+        out = ev.evaluate('(define (sqrt-iter guess x)(if (good-enough? guess x) guess(sqrt-iter (improve guess x) x)))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_40(self):
+        out = ev.evaluate('(define (sqrt x) (sqrt-iter 1.0 x))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_41(self):
+        out = ev.evaluate('(sqrt 9)')
+        self.assertEqual(out, 3.00009155413138)
+
+    def test_evaluator_42(self):
+        out = ev.evaluate('(define (^ base exp) (if (= exp 0) 1 (* base (^ base (- exp 1)))))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_43(self):
+        out = ev.evaluate('(^ 17 0)')
+        self.assertEqual(out, 1)
+
+    def test_evaluator_44(self):
+        out = ev.evaluate('(^ -2 7)')
+        self.assertEqual(out, -128)
+
+    def test_evaluator_45(self):
+        out = ev.evaluate('(^ 3 4)')
+        self.assertEqual(out, 81)
+
+    def test_evaluator_46(self):
+        out = ev.evaluate('(define (cube x) (* x x x))')
+        self.assertEqual(out, )
+
+    def test_evaluator_47(self):
+        out = ev.evaluate('(define (sum term a next b)(if (> a b) 0(+ (term a)(sum term (next a) next b))))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_48(self):
+        out = ev.evaluate('(define (inc n) (+ n 1))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_49(self):
+        out = ev.evaluate('(define (sum-cubes a b)(sum cube a inc b))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_50(self):
+        out = ev.evaluate('(sum-cubes 1 10)')
+        self.assertEqual(out, 3025)
+
+    def test_evaluator_51(self):
+        out = ev.evaluate('(define (identity x) x)')
+        self.assertEqual(out, None)
+
+    def test_evaluator_52(self):
+        out = ev.evaluate('(define (sum-integers a b)(sum identity a inc b))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_53(self):
+        out = ev.evaluate('(sum-integers 1 10)')
+        self.assertEqual(out, 55)
+
+    def test_evaluator_54(self):
+        out = ev.evaluate('(define (pi-term x)(/ 1.0 (* x (+ x 2))))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_55(self):
+        out = ev.evaluate('(define (pi-next x)(+ x 4))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_56(self):
+        out = ev.evaluate('(define (pi-sum a b)(sum pi-term a pi-next b))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_57(self):
+        out = ev.evaluate('(* 8 (pi-sum 1 100))')
+        self.assertEqual(out, 3.139592655589783)
+
+    def test_evaluator_58(self):
+        out = ev.evaluate('(define (list-ref items n) (if (= n 0) (car items) (list-ref (cdr items) (- n 1))))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_59(self):
+        out = ev.evaluate('(define squares (list 1 4 9 16 25))')
+        self.assertEqual(out, None)
+
+    def test_evaluator_60(self):
+        out = ev.evaluate('(list-ref squares 3)')
+        self.assertEqual(out, 16)
+
+    def test_quotes(self):
+        out = ev.evaluate("(car '(1 2 '3))")
+        self.assertEqual(out, 1)
+
 class EventStub: 
     '''Pretend event stub for methods that take an event argument.'''
     def __init__(self, c):        

@@ -364,16 +364,6 @@ def debug_print(str):
 def wrong(str):
 	raise Exception(str)
 
-<<<<<<< HEAD:scheme_ide/evaluator.py
-def debug_print(str):
-
-        if(debug):
-                print(str)
-
-if(__name__ == "__main__"):
-        run()
-
-=======
 def display_variables():
 	print(str(variable_definitions))
 
@@ -382,4 +372,3 @@ def display_functions():
 
 if(__name__ == "__main__"):
 	run()
->>>>>>> 3f68f13e1288fa87e2855d98589ef2780e5c2406:evaluator.py
