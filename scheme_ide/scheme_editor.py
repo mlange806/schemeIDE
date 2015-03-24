@@ -142,7 +142,7 @@ class SchemeEditor(LineNumsText):
         count = tk.IntVar()
         while True:
             index = self.search(pattern, "matchEnd","searchLimit",
-                                count=count)
+                                count=count).strip()
             if index == "": break
             self.mark_set("matchStart", index)
             self.mark_set("matchEnd", "%s+%sc" % (index, count.get()))
