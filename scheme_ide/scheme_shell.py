@@ -1,7 +1,7 @@
-from scheme_editor import SchemeEditor
+from scheme_text import SchemeText
 import evaluator as ev
 
-class SchemeShell(SchemeEditor):
+class SchemeShell(SchemeText):
     '''
     Scheme Shell
 
@@ -61,9 +61,8 @@ class SchemeShell(SchemeEditor):
         
         #Prevents user from inserting text where they shouldn't.
         if insert_collumn < 3:
-            return 'break'        
+            return 'break'
 
-    
     def run(self, exp):
         '''Runs the expression in the console and shows the result.'''
         try:
