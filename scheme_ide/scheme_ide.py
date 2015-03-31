@@ -4,7 +4,7 @@ from tkinter import filedialog
 import math
 import evaluator as ev
 from scheme_shell import *
-from scheme_editor import *
+from scheme_text_line_numbered import *
 
 class SchemeIDE(tk.Frame):
     '''
@@ -49,8 +49,9 @@ class SchemeIDE(tk.Frame):
 
     def create_editor(self, r):
         '''Creates a text box that a user can type code into.'''
-        self.editor = SchemeEditor(master=self.rightframe, height=20, width=40, bg='black', \
-                                 fg='white', insertbackground='blue')
+
+        self.editor = SchemeTextLineNumbered(master=r, height=20, width=40, bg='black', \
+                                             fg='white', insertbackground='blue')
         self.editor.pack(fill=tk.BOTH, expand=1)
         
     def create_console(self, r):
@@ -91,7 +92,6 @@ class SchemeIDE(tk.Frame):
             self.master.maxsize(width=1000, height=500)           
             self.tutorial = Tutorial(master=self.leftframe)
             self.tutorial.pack()
-        
 
 class Tutorial(tk.Frame):
     def __init__(self, master=None, *args, **kwargs):
