@@ -15,12 +15,12 @@ class SchemeIDE(tk.Frame):
 
     def __init__(self, master=None):
         '''Creates the application and its widgets.'''
+
         tk.Frame.__init__(self, master)
         self.master = master
-        master.maxsize(width=500, height=500)
+        master.maxsize(width=450, height=450)
         master.resizable(width='false', height='false')
         
-
         self.rightframe = tk.Frame(master)
         self.leftframe = tk.Frame(master)
         self.rightframe.pack(side='right')
@@ -30,8 +30,7 @@ class SchemeIDE(tk.Frame):
         self.create_editor(master)
         self.create_console(master)
         self.root = master
-        
-
+  
     def create_toolbar(self, r):
         menubar = tk.Menu(self.rightframe)
 
@@ -49,9 +48,8 @@ class SchemeIDE(tk.Frame):
 
     def create_editor(self, r):
         '''Creates a text box that a user can type code into.'''
-
-        self.editor = SchemeTextLineNumbered(master=r, height=20, width=40, bg='black', \
-                                             fg='white', insertbackground='blue')
+        self.editor = SchemeTextLineNumbered(master=self.rightframe, height=20, width=40, bg='black', \
+                                 fg='white', insertbackground='blue')
         self.editor.pack(fill=tk.BOTH, expand=1)
         
     def create_console(self, r):
@@ -61,11 +59,11 @@ class SchemeIDE(tk.Frame):
 
     def run_code(self):
         '''Evaluates Scheme expression in editor and displays result in console.'''
-
         exp = self.editor.get("1.0", tk.END)
         self.console.run(exp)
 
-    def open_file(self, testMode=False, path=None):    
+    def open_file(self, testMode=False, path=None):
+        
         if not testMode: path = tk.filedialog.askopenfilename(parent=self)
         if path == None: return
         file = open(path, "r")
@@ -78,18 +76,19 @@ class SchemeIDE(tk.Frame):
         file = open(path, "w")
         file.write(self.editor.get_all())
         file.close()
-    
+
     def add_tutorial(self):
         try:    
             self.tutorial
             if self.tutorial.winfo_ismapped(): 
-                self.master.maxsize(width=500, height=500)
+                self.master.maxsize(width=450, height=400)
                 self.tutorial.pack_forget()
+               
             else:
-                self.master.maxsize(width=1000, height=500) 
+                self.master.maxsize(width=1000, height=400) 
                 self.tutorial.pack()
         except:      
-            self.master.maxsize(width=1000, height=500)           
+            self.master.maxsize(width=1000, height=400)           
             self.tutorial = Tutorial(master=self.leftframe)
             self.tutorial.pack()
 
@@ -103,7 +102,7 @@ class Tutorial(tk.Frame):
         self.title.insert('end', 'Lesson')
         self.title.config(state='disabled')
 
-        self.instr = tk.Text(self, height=26, bg='black', fg='white', width=50)
+        self.instr = tk.Text(self, height=40, bg='black', fg='white', width=50)
         self.instr.insert('end', 'Here is sample instructions\n    1. Do this.\n    2. Then do this\n\nPress the Check Answer button when you are\nfinished.')
         self.instr.config(state='disabled')
 
@@ -123,5 +122,5 @@ if __name__ == '__main__':
     root.title('Scheme IDE')
     app = SchemeIDE(master=root)
     app.mainloop()
-   
+
 
