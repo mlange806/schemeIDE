@@ -78,7 +78,9 @@ class SchemeShell(SchemeText):
     def new_line(self):
         self.insert('end', '>> ')
         self.line = self.line + 2
-          
+    
+    def get_result(self):
+        return self.get(str(self.line - 1)+'.0', str(self.line)+'.0')      
 
 
 

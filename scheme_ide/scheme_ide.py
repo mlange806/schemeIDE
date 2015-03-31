@@ -1,10 +1,10 @@
-import tkinter as tk
 from subprocess import Popen, PIPE
 from tkinter import filedialog
 import math
 import evaluator as ev
 from scheme_shell import *
 from scheme_text_line_numbered import *
+from tutorial import *
 
 class SchemeIDE(tk.Frame):
     '''
@@ -89,32 +89,8 @@ class SchemeIDE(tk.Frame):
                 self.tutorial.pack()
         except:      
             self.master.maxsize(width=1000, height=400)           
-            self.tutorial = Tutorial(master=self.leftframe)
+            self.tutorial = Tutorial(self.console, master=self.leftframe)
             self.tutorial.pack()
-
-class Tutorial(tk.Frame):
-    def __init__(self, master=None, *args, **kwargs):
-        tk.Frame.__init__(self, master, bg='black', *args, **kwargs)
-        bottomframe = tk.Frame(self, bg='black')
-        bottomframe.pack(side='bottom')
-
-        self.title = tk.Text(self, height=1, bg='black', fg='white', width=50, borderwidth=0)
-        self.title.insert('end', 'Lesson')
-        self.title.config(state='disabled')
-
-        self.instr = tk.Text(self, height=40, bg='black', fg='white', width=50)
-        self.instr.insert('end', 'Here is sample instructions\n    1. Do this.\n    2. Then do this\n\nPress the Check Answer button when you are\nfinished.')
-        self.instr.config(state='disabled')
-
-        self.check = tk.Button(bottomframe, text='Check Answer', bg='black', fg='white', width=10, height=3)
-        self.feedback = tk.Text(bottomframe, height=3, bg='black', fg='white', width=40, borderwidth=0)
-        self.feedback.insert('end', 'You have not submitted an answer yet...')
-        self.feedback.config(state='disabled')
-        
-        self.title.pack(side='top')
-        self.instr.pack(side='top')
-        self.check.pack(side='left')
-        self.feedback.pack(side='left')
           
 if __name__ == '__main__':
     root = tk.Tk()
