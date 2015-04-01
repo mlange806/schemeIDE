@@ -1,5 +1,6 @@
 from scheme_text import SchemeText
 import evaluator as ev
+import re
 
 class SchemeShell(SchemeText):
     '''
@@ -9,6 +10,8 @@ class SchemeShell(SchemeText):
     '''
 
     def __init__(self, *args, **kwargs):
+        '''Constructor for Shell object initialization.'''
+
         super(SchemeShell, self).__init__(*args, **kwargs)
         
         self.line = 1
@@ -42,20 +45,28 @@ class SchemeShell(SchemeText):
         self.key(event)
         
     def _key(self, event):
+        '''Handles event on key release.'''
+
         pos = str(self.line) + '.3'     
 
         if event.char == '\r':
             pos = str(self.line)+'.3'
             out = self.get(pos, 'end')
-            out = ev.evaluate(out)
 
-            self.insert('end', str(out)+'\n')
-            self.new_line()
+            #Handles special case of no alphanum input.
+            if re.search('[a-zA-Z0-9]', out): 
+                try: out = ev.evaluate(out)
+                except: out = 'Error!'
+                self.insert('end', str(out)+'\n')
+                self.new_line()
+            else: self.new_line(output=False)
 
         #Text highlighting.
         self.key(event)
 
     def _onKey(self, event):
+        '''Handles event of key press.'''
+
         pos = str(self.line) + '.3'       
         insert_collumn = int(self.index('insert').split('.')[1])
         
@@ -64,20 +75,28 @@ class SchemeShell(SchemeText):
             return 'break'
 
     def run(self, exp):
-        '''Runs the expression in the console and shows the result.'''
+        '''Runs the expression in the editor and shows the result.'''
+
         try:
             output = ev.evaluate(exp)  
             self.insert('end', 'run\n')  
             self.insert('end', str(output))
             self.insert('end', '\n')
         except:
+            print('debug')
             self.insert('end', 'Error!')
             self.insert('end', '\n')
         self.new_line()
     
-    def new_line(self):
-        self.insert('end', '>> ')
-        self.line = self.line + 2
+    def new_line(self, output=True):
+        '''Creates new prompt arrows in the correct place.'''        
+
+        if output:        
+            self.insert('end', '>> ')
+            self.line = self.line + 2
+        else:  
+            self.insert('end', '>> ')
+            self.line = self.line + 1
     
     def get_result(self):
         return self.get(str(self.line - 1)+'.0', str(self.line)+'.0')      
