@@ -18,7 +18,7 @@ class SchemeTextLineNumbered(SchemeText):
         # Create the line number text component
         self.linetext = SchemeText(self.frame,
                 height = 1,
-                width = 4,
+                width = 3,
                 padx = 4,
                 highlightthickness = 0,
                 takefocus = 0,
