@@ -58,7 +58,7 @@ class SchemeIDE(tk.Frame):
         color = self.color_selector()
         self.editor.configure_colors(parenthesis=color)
         self.console.configure_colors(parenthesis=color)
-
+  
     def create_toolbar(self, r):
         menubar = tk.Menu(self.rightframe)
 

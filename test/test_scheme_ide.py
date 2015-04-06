@@ -100,7 +100,7 @@ class SchemeIDETest(unittest.TestCase):
         self.app.editor.insert('end', "2+2")
         self.app.run_code()
         output = self.app.console.get("1.0", "end")
-        self.assertNotEqual(output, "-> -> \n")
+        self.assertNotEqual(output, ">> >> \n")
 
     def test_save(self):
         '''Verifies saving a file with minimal mocking.'''
@@ -488,6 +488,12 @@ class SchemeIDETest(unittest.TestCase):
     def test_quotes(self):
         out = ev.evaluate("(car '(1 2 '3))")
         self.assertEqual(out, 1)
+    
+    def test_blank_shell_input(self):
+        
+        self.app.press_key('\r', 'console')
+        out = self.app.console.get('2.0', '2.2')
+        self.assertEqual(out, '>>')
 
 class EventStub: 
     '''Pretend event stub for methods that take an event argument.'''
