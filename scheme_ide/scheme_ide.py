@@ -54,6 +54,11 @@ class SchemeIDE(tk.Frame):
         self.editor.configure_colors(operator=color)
         self.console.configure_colors(operator=color)
 
+    def colorconfig_parenthesis(self):
+        color = self.color_selector()
+        self.editor.configure_colors(parenthesis=color)
+        self.console.configure_colors(parenthesis=color)
+
     def create_toolbar(self, r):
         menubar = tk.Menu(self.rightframe)
 
@@ -70,6 +75,7 @@ class SchemeIDE(tk.Frame):
         colormenu.add_command(label="Background", command=self.colorconfig_background)
         colormenu.add_command(label="Keywords", command=self.colorconfig_keyword)
         colormenu.add_command(label="Operators", command=self.colorconfig_operator)
+        colormenu.add_command(label="Parenthesis", command=self.colorconfig_parenthesis)
         menubar.add_cascade(label="Colors", menu=colormenu)
 
         menubar.add_command(label="Run", command=self.run_code)
