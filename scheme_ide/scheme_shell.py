@@ -1,6 +1,7 @@
 from scheme_text import SchemeText
 import evaluator as ev
 import re
+import string
 
 class SchemeShell(SchemeText):
     '''
@@ -54,7 +55,7 @@ class SchemeShell(SchemeText):
             out = self.get(pos, 'end')
 
             #Handles special case of no alphanum input.
-            if re.search('[a-zA-Z0-9]', out): 
+            if re.search('[a-zA-Z0-9'+str(string.punctuation)+']', out): 
                 try: out = ev.evaluate(out)
                 except: out = 'Error!'
                 self.insert('end', str(out)+'\n')
@@ -77,13 +78,12 @@ class SchemeShell(SchemeText):
     def run(self, exp):
         '''Runs the expression in the editor and shows the result.'''
 
+        self.insert('end', 'run\n') 
         try:
-            output = ev.evaluate(exp)  
-            self.insert('end', 'run\n')  
+            output = ev.evaluate(exp)   
             self.insert('end', str(output))
             self.insert('end', '\n')
         except:
-            print('debug')
             self.insert('end', 'Error!')
             self.insert('end', '\n')
         self.new_line()
@@ -99,6 +99,8 @@ class SchemeShell(SchemeText):
             self.line = self.line + 1
     
     def get_result(self):
+        '''Will return the value of the last evaluated result.'''
+
         return self.get(str(self.line - 1)+'.0', str(self.line)+'.0')      
 
 
