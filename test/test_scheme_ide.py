@@ -497,6 +497,8 @@ class SchemeIDETest(unittest.TestCase):
         self.assertEqual(out, '>>')
 
     def test_misplaced_error_message(self):
+        '''Test for issue where an error message was misplaced after evaluating invalid code in the editor.'''
+
         self.app.editor.insert('end', 'gibberish')
         self.app.run_code()
         out = self.app.console.get('1.0', 'end')
