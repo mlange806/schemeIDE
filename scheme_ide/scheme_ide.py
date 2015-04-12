@@ -2,6 +2,7 @@ from subprocess import Popen, PIPE
 from tkinter import filedialog
 import math
 import evaluator as ev
+from colorprofile import Colorprofile
 from scheme_shell import *
 from scheme_text_line_numbered import *
 from tutorial import *
@@ -20,45 +21,25 @@ class SchemeIDE(tk.Frame):
         self.master = master
         master.maxsize(width=450, height=450)
         master.resizable(width='false', height='false')
-        
+
         self.rightframe = tk.Frame(master)
         self.leftframe = tk.Frame(master)
         self.rightframe.pack(side='right')
         self.leftframe.pack(side='left')
 
+        self.colorprofile = Colorprofile(self)
         self.create_toolbar(master)
         self.create_editor(master)
         self.create_console(master)
+
+        self.colorprofile_updated()
+
         self.root = master
 
-    def color_selector(self):
-        return tk.colorchooser.askcolor()[1]
+    def colorprofile_updated(self):
+        self.colorprofile.update_scheme_text(self.editor)
+        self.colorprofile.update_scheme_text(self.console)
 
-    def colorconfig_text(self):
-        color = self.color_selector()
-        self.editor.configure_colors(text=color)
-        self.console.configure_colors(text=color)
-
-    def colorconfig_background(self):
-        color = self.color_selector()
-        self.editor.configure_colors(background=color)
-        self.console.configure_colors(background=color)
-
-    def colorconfig_keyword(self):
-        color = self.color_selector()
-        self.editor.configure_colors(keyword=color)
-        self.console.configure_colors(keyword=color)
-
-    def colorconfig_operator(self):
-        color = self.color_selector()
-        self.editor.configure_colors(operator=color)
-        self.console.configure_colors(operator=color)
-
-    def colorconfig_parenthesis(self):
-        color = self.color_selector()
-        self.editor.configure_colors(parenthesis=color)
-        self.console.configure_colors(parenthesis=color)
-  
     def create_toolbar(self, r):
         '''Creates a toolbar with a pull down menu.'''
     
@@ -73,11 +54,14 @@ class SchemeIDE(tk.Frame):
         menubar.add_cascade(label="File", menu=filemenu)
 
         colormenu = tk.Menu(menubar, tearoff=0)
-        colormenu.add_command(label="Text", command=self.colorconfig_text)
-        colormenu.add_command(label="Background", command=self.colorconfig_background)
-        colormenu.add_command(label="Keywords", command=self.colorconfig_keyword)
-        colormenu.add_command(label="Operators", command=self.colorconfig_operator)
-        colormenu.add_command(label="Parenthesis", command=self.colorconfig_parenthesis)
+        colormenu.add_command(label="Load Profile", command=lambda: self.colorprofile.load_profile(self))
+        colormenu.add_command(label="Save Profile", command=lambda: self.colorprofile.save_profile(self))
+        colormenu.add_separator()
+        colormenu.add_command(label="Text", command=lambda: self.colorprofile.pickcolor("text"))
+        colormenu.add_command(label="Background", command=lambda: self.colorprofile.pickcolor("background"))
+        colormenu.add_command(label="Keywords", command=lambda: self.colorprofile.pickcolor("keyword"))
+        colormenu.add_command(label="Operators", command=lambda: self.colorprofile.pickcolor("operator"))
+        colormenu.add_command(label="Parenthesis", command=lambda: self.colorprofile.pickcolor("paren_highlight"))
         menubar.add_cascade(label="Colors", menu=colormenu)
 
         menubar.add_command(label="Run", command=self.run_code)
@@ -87,14 +71,13 @@ class SchemeIDE(tk.Frame):
     def create_editor(self, r):
         '''Creates a text box that a user can type code into.'''
 
-        self.editor = SchemeTextLineNumbered(master=self.rightframe, height=20, width=40, bg='black', \
-                                 fg='white', insertbackground='blue')
+        self.editor = SchemeTextLineNumbered(master=self.rightframe, height=20, width=40)
         self.editor.pack(fill=tk.BOTH, expand=1)
         
     def create_console(self, r):
         '''Creates a console for program output.'''
 
-        self.console = SchemeShell(master=self.rightframe,height=10,width=60,bg='black',fg='white',insertbackground='blue')
+        self.console = SchemeShell(master=self.rightframe,height=10,width=60)
         self.console.pack(fill=tk.BOTH, expand=1)
 
     def run_code(self):

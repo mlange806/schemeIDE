@@ -87,7 +87,7 @@ class SchemeIDETest(unittest.TestCase):
 
         self.app.editor.delete('1.0', 'end')        
         self.app.press_key('+', 'editor')        
-        x, y = self.app.editor.tag_ranges('green')
+        x, y = self.app.editor.tag_ranges('operator')
         tag_range = (str(x), str(y))    
         expected = ('1.0', '1.1')     
 
