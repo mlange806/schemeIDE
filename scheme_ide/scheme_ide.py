@@ -60,6 +60,8 @@ class SchemeIDE(tk.Frame):
         self.console.configure_colors(parenthesis=color)
   
     def create_toolbar(self, r):
+        '''Creates a toolbar with a pull down menu.'''
+    
         menubar = tk.Menu(self.rightframe)
 
         filemenu = tk.Menu(menubar, tearoff=0)
@@ -84,21 +86,25 @@ class SchemeIDE(tk.Frame):
 
     def create_editor(self, r):
         '''Creates a text box that a user can type code into.'''
+
         self.editor = SchemeTextLineNumbered(master=self.rightframe, height=20, width=40, bg='black', \
                                  fg='white', insertbackground='blue')
         self.editor.pack(fill=tk.BOTH, expand=1)
         
     def create_console(self, r):
         '''Creates a console for program output.'''
+
         self.console = SchemeShell(master=self.rightframe,height=10,width=60,bg='black',fg='white',insertbackground='blue')
         self.console.pack(fill=tk.BOTH, expand=1)
 
     def run_code(self):
         '''Evaluates Scheme expression in editor and displays result in console.'''
+
         exp = self.editor.get("1.0", tk.END)
         self.console.run(exp)
 
     def open_file(self, testMode=False, path=None):
+        '''Creates an open file windw and sets the contents of the editor to the file.'''
         
         if not testMode: path = tk.filedialog.askopenfilename(parent=self)
         if path == None: return
@@ -107,6 +113,8 @@ class SchemeIDE(tk.Frame):
         file.close()
 
     def save_file(self, testMode=False, path=None):
+        '''Creates a save fie window and saves the contents of the editor to the path specified.'''
+
         if not testMode: path = tk.filedialog.asksaveasfilename(parent=self)
         if path == None: return
         file = open(path, "w")
@@ -114,6 +122,8 @@ class SchemeIDE(tk.Frame):
         file.close()
 
     def add_tutorial(self):
+        '''Creates the tutorial widget if not created and closes it if it is visible.'''
+
         try:    
             self.tutorial
             if self.tutorial.winfo_ismapped(): 

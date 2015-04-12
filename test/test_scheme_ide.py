@@ -53,8 +53,8 @@ class SchemeIDETest(unittest.TestCase):
         self.app.editor.delete('1.0', 'end')
         self.app.editor.insert('end', "!!!")
         self.app.run_code()
-        result = self.app.console.get("4.0", "4.4")
-        self.assertEqual(result, 'None', 'Console did not output None.')
+        result = self.app.console.get("4.0", "4.6")
+        self.assertEqual(result, 'Error!', 'Console did not output None.')
 
         self.app.editor.delete('1.0', 'end')
         self.app.editor.insert('end', "(+ (* 6 6) 18)")
@@ -147,8 +147,8 @@ class SchemeIDETest(unittest.TestCase):
 
         self.app.console.insert('3.3', '!!!')
         self.app.press_key('\r', 'console')
-        out = self.app.console.get('4.0', '4.4')
-        self.assertEqual(out, 'None')
+        out = self.app.console.get('4.0', '4.6')
+        self.assertEqual(out, 'Error!')
 
         self.app.console.insert('5.3', '(* (+ 18 19) 200)')
         self.app.press_key('\r', 'console')
@@ -487,13 +487,22 @@ class SchemeIDETest(unittest.TestCase):
 
     def test_quotes(self):
         out = ev.evaluate("(car '(1 2 '3))")
-        self.assertEqual(out, 1)
+        self.assertEqual(out, str(1))
     
     def test_blank_shell_input(self):
+        '''Test for issue where inputing only non-alphanumberic characters broke the shell.'''
         
         self.app.press_key('\r', 'console')
         out = self.app.console.get('2.0', '2.2')
         self.assertEqual(out, '>>')
+
+    def test_misplaced_error_message(self):
+        '''Test for issue where an error message was misplaced after evaluating invalid code in the editor.'''
+
+        self.app.editor.insert('end', 'gibberish')
+        self.app.run_code()
+        out = self.app.console.get('1.0', 'end')
+        self.assertEqual(out, '>> run\nError!\n>> \n')
 
 class EventStub: 
     '''Pretend event stub for methods that take an event argument.'''
