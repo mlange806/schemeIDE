@@ -11,7 +11,7 @@ course = ['Alternative Scheme Course', ('Lesson 1', ('Section 1', ('Write a func
                                               )
                                  ), 
                                 
-                                 ('Lesson2', ('Section 1', ('Type 4 into the shell.', '<value-test>', 4)),
+                                 ('Lesson 2', ('Section 1', ('Type 4 into the shell.', '<value-test>', 4)),
                                              ('Section 2', ('Type (+ 1 2) into the shell.', '<value-test>', 3))
                                  )
          ]        
