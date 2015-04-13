@@ -95,16 +95,27 @@ class Tutorial(tk.Frame):
     def check_result(self):        
         '''Loads the test function from the course data and tests the scheme function specified in instructions.'''
 
-        tester = self.course[self.lesson_no][self.section_no][1][2]
-        funct =  self.course[self.lesson_no][self.section_no][1][1]       
+        if self.course[self.lesson_no][self.section_no][1][1] == '<value-test>':
+            #Tests that the last value computed is equal to the epected value.
+            value = self.course[self.lesson_no][self.section_no][1][2]
 
-        def f(x):
-            return ev.evaluate('('+funct+' '+str(x)+')')
+            if self.shell.get_result() == str(value): 
+                self.set_all("Correct!")
+            else:  
+                self.set_all("Incorrect!")
 
-        if tester(f):
-            self.set_all("Correct!")
-        else:  
-            self.set_all("Incorrect!")
+        else:
+            #Tests that a function returns the expected value for a set test inputs.
+            tester = self.course[self.lesson_no][self.section_no][1][2]
+            funct =  self.course[self.lesson_no][self.section_no][1][1]       
+
+            def f(x):
+                return ev.evaluate('('+funct+' '+str(x)+')')
+
+            if tester(f):
+                self.set_all("Correct!")
+            else:  
+                self.set_all("Incorrect!")
 
     def next_section(self):
         '''Goes to the next section in the current lesson. Once it reaches the last section, it resets back to the first.'''
@@ -147,8 +158,7 @@ class Tutorial(tk.Frame):
 
         # Reset the feedback box.
         self.set_all('You have not submitted an answer yet...')
-        
-       
+             
     def set_all(self, string):
         '''Sets the feedback box to string.'''
 

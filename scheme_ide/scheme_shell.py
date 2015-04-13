@@ -101,7 +101,7 @@ class SchemeShell(SchemeText):
     def get_result(self):
         '''Will return the value of the last evaluated result.'''
 
-        return self.get(str(self.line - 1)+'.0', str(self.line)+'.0')      
+        return self.get(str(self.line - 1)+'.0', str(self.line)+'.0').rstrip('\n')      
 
 
 
