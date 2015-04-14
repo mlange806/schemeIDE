@@ -93,6 +93,16 @@ class SchemeIDETest(unittest.TestCase):
 
         self.assertEqual(expected, tag_range)
 
+    def test_paren_matching(self):
+        '''Verifies keyword highlighting for typed lambda in the editor.'''
+
+        self.app.editor.delete('1.0', 'end')
+        self.app.editor.insert('end', 'abc(def(s))')
+        self.app.editor.key(None)
+        ranges = self.app.editor.tag_ranges('paren_highlight')
+        ranges_str = [str(x) for x in ranges]
+        self.assertEqual(['1.3', '1.4', '1.10', '1.11'], ranges_str)
+
     def test_double_arrow(self): 
         '''Test for same line arrow output issue.'''  
 
