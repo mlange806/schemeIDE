@@ -94,7 +94,7 @@ class SchemeIDETest(unittest.TestCase):
         self.assertEqual(expected, tag_range)
 
     def test_paren_matching(self):
-        '''Verifies keyword highlighting for typed lambda in the editor.'''
+        '''Verifies parenthesis matching in the editor.'''
 
         self.app.editor.delete('1.0', 'end')
         self.app.editor.insert('end', 'abc(def(s))')
