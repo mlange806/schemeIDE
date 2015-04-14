@@ -12,7 +12,7 @@ class Tutorial(tk.Frame):
     '''
 
     def __init__(self, shell, master=None, *args, **kwargs):
-        '''Constructor that loads the course and sets up everything.'''        
+        '''Constructor that loads the course and sets up everything.'''    
 
         tk.Frame.__init__(self, master, bg='black', *args, **kwargs)
         titleframe = tk.Frame(self, bg='black')
@@ -23,30 +23,17 @@ class Tutorial(tk.Frame):
         self.shell = shell
         self.section_no = 1
         self.lesson_no = 1
-
-        #Get the course information here.        
-        path = tk.filedialog.askopenfilename(parent=self, initialdir=os.chdir('scheme_ide/courses'))
-        name = os.path.basename(path)
-        name = os.path.splitext(name)[0]
-        module = __import__('courses.'+name, fromlist=[''])
-
-        self.course = module.course
-        title = self.course[0]
-        lesson = self.course[1][0]
-        section = self.course[1][1][0]
-        instr = self.course[1][1][1][0]
-        
+            
         #Create the title frame
-        self.title = tk.Text(titleframe, height=1, bg='black', fg='white', width=30, borderwidth=0)
-        self.title.insert('end', title)
+        self.title = tk.Text(titleframe, height=1, bg='black', fg='white', width=30, borderwidth=0)       
         self.title.config(state='disabled')
 
-        self.menu_option = tk.StringVar()
-        self.menu_option.set(lesson)
+        self.menu_option = tk.StringVar(self)
+        self.menu_option.set('')
         self.menu_option.trace("w", self.set_lesson)
-        self.ops = self._get_lessons(self.course)
-
-        self.lesson_sel = tk.OptionMenu(titleframe, self.menu_option, *sorted(list(self.ops)))
+        self.ops = ['wow']
+        
+        self.lesson_sel = tk.OptionMenu(titleframe, self.menu_option, self.ops)
         self.lesson_sel.config(bg = "BLACK", fg = "WHITE", bd=0, highlightbackground='black')
 
         self.prev = tk.Button(titleframe, text='<-', bg='black', fg='white', width=4, height=1, command=self.next_section)
@@ -59,9 +46,7 @@ class Tutorial(tk.Frame):
 
         #Create instruction section
         self.instr = tk.Text(self, height=40, bg='black', fg='white', width=50)
-        self.instr.insert('end', section+'\n\n'+instr)
         self.instr.config(state='disabled')
-
         self.instr.pack(side='top')        
 
         #Create the bottom frame
@@ -73,23 +58,57 @@ class Tutorial(tk.Frame):
         self.check.pack(side='left')
         self.feedback.pack(side='left')
 
+        self.load_course()
+
+    def load_course(self):
+        #Get the course information here.          
+        path = tk.filedialog.askopenfilename(parent=self, initialdir=os.path.realpath('scheme_ide/courses'))
+        name = os.path.basename(path)
+        name = os.path.splitext(name)[0]
+        module = __import__('courses.'+name, fromlist=[''])
+
+        self.course = module.course
+        title = self.course[0]
+        lesson = self.course[1][0]
+        section = self.course[1][1][0]
+        instr = self.course[1][1][1][0]
+        
+        self.title.config(state='normal')
+        self.title.delete('1.0', 'end')
+        self.title.insert('end', title)
+
+        self.instr.config(state='normal')
+        self.instr.delete('1.0', 'end')
+        self.instr.insert('end', section+'\n\n'+instr)
+
+        self.ops = self._get_lessons(self.course)
+        self.menu_option.set(lesson)
+        self.lesson_sel['menu'].delete(0, 'end')
+
+        for choice in sorted(list(self.ops)):
+            self.lesson_sel['menu'].add_command(label=choice, command=tk._setit(self.menu_option, choice))      
+
     def set_lesson(self, *args):
         '''Set the tutorial screen to the new lesson chosen in the menu.'''
        
-        self.lesson_no = self.ops[self.menu_option.get()]
+        try:
+            self.lesson_no = self.ops[self.menu_option.get()]
+            # Get the course information here.
+            section = self.course[self.lesson_no][self.section_no][0]
+            instr = self.course[self.lesson_no][self.section_no][1][0]
 
-        # Get the course information here.
-        section = self.course[self.lesson_no][self.section_no][0]
-        instr = self.course[self.lesson_no][self.section_no][1][0]
+            # Sets the contents of the instr box.
+            self.instr.config(state='normal')
+            self.instr.delete(1.0, tk.END)
+            self.instr.insert(1.0, section+'\n\n'+instr)
+            self.instr.config(state='disabled')
 
-        # Sets the contents of the instr box.
-        self.instr.config(state='normal')
-        self.instr.delete(1.0, tk.END)
-        self.instr.insert(1.0, section+'\n\n'+instr)
-        self.instr.config(state='disabled')
+            # Reset the feedback box.
+            self.set_all('You have not submitted an answer yet...')
 
-        # Reset the feedback box.
-        self.set_all('You have not submitted an answer yet...')
+        except:
+            # If an exception occurs, it is because the course is first being loaded and menu option has no meaningful data yet.
+            pass
         
 
     def check_result(self):        
