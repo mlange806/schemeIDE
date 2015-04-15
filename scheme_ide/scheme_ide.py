@@ -22,6 +22,8 @@ class SchemeIDE(tk.Frame):
         master.maxsize(width=450, height=450)
         master.resizable(width='false', height='false')
 
+        self.state = 0
+        
         self.rightframe = tk.Frame(master)
         self.leftframe = tk.Frame(master)
         self.rightframe.pack(side='right')
@@ -43,17 +45,17 @@ class SchemeIDE(tk.Frame):
     def create_toolbar(self, r):
         '''Creates a toolbar with a pull down menu.'''
     
-        menubar = tk.Menu(self.rightframe)
+        self.menubar = tk.Menu(self.rightframe)
 
-        filemenu = tk.Menu(menubar, tearoff=0)
-        filemenu.add_command(label="Open", command=self.open_file)
-        filemenu.add_command(label="Save", command=self.save_file)
-        filemenu.add_command(label="Tutorial", command=self.add_tutorial)
-        filemenu.add_separator()
-        filemenu.add_command(label="Exit")
-        menubar.add_cascade(label="File", menu=filemenu)
+        self.filemenu = tk.Menu(self.menubar, tearoff=0)
+        self.filemenu.add_command(label="Open", command=self.open_file)
+        self.filemenu.add_command(label="Save", command=self.save_file)
+        self.filemenu.add_command(label="Open Tutorial", command=self.add_tutorial)
+        self.filemenu.add_separator()
+        self.filemenu.add_command(label="Exit")
+        self.menubar.add_cascade(label="File", menu=self.filemenu)
 
-        colormenu = tk.Menu(menubar, tearoff=0)
+        colormenu = tk.Menu(self.menubar, tearoff=0)
         colormenu.add_command(label="Load Profile", command=lambda: self.colorprofile.load_profile(self))
         colormenu.add_command(label="Save Profile", command=lambda: self.colorprofile.save_profile(self))
         colormenu.add_separator()
@@ -62,11 +64,11 @@ class SchemeIDE(tk.Frame):
         colormenu.add_command(label="Keywords", command=lambda: self.colorprofile.pickcolor("keyword"))
         colormenu.add_command(label="Operators", command=lambda: self.colorprofile.pickcolor("operator"))
         colormenu.add_command(label="Parenthesis", command=lambda: self.colorprofile.pickcolor("paren_highlight"))
-        menubar.add_cascade(label="Colors", menu=colormenu)
+        self.menubar.add_cascade(label="Colors", menu=colormenu)
 
-        menubar.add_command(label="Run", command=self.run_code)
+        self.menubar.add_command(label="Run", command=self.run_code)
 
-        r.config(menu=menubar)
+        r.config(menu=self.menubar)
 
     def create_editor(self, r):
         '''Creates a text box that a user can type code into.'''
@@ -87,7 +89,7 @@ class SchemeIDE(tk.Frame):
         self.console.run(exp)
 
     def open_file(self, testMode=False, path=None):
-        '''Creates an open file windw and sets the contents of the editor to the file.'''
+        '''Creates an open file window and sets the contents of the editor to the file.'''
         
         if not testMode: path = tk.filedialog.askopenfilename(parent=self)
         if path == None: return
@@ -107,19 +109,26 @@ class SchemeIDE(tk.Frame):
     def add_tutorial(self):
         '''Creates the tutorial widget if not created and closes it if it is visible.'''
 
-        try:    
-            self.tutorial
-            if self.tutorial.winfo_ismapped(): 
-                self.master.maxsize(width=450, height=400)
-                self.tutorial.pack_forget()
-               
-            else:
-                self.master.maxsize(width=1000, height=400) 
-                self.tutorial.pack()
-        except:      
+        if self.state == 0:
             self.master.maxsize(width=1000, height=400)           
             self.tutorial = Tutorial(self.console, master=self.leftframe)
             self.tutorial.pack()
+            self.filemenu.entryconfigure(2, label="Close Tutorial")
+            self.state = 1 
+
+        elif self.state == 1:
+            self.tutorial.pack_forget()
+            self.master.maxsize(width=450, height=400)
+            self.filemenu.entryconfigure(2, label="Open Tutorial")
+            self.state = 2
+
+        elif self.state == 2:
+            self.tutorial.load_course()
+            self.master.maxsize(width=1000, height=400)   
+            self.tutorial.pack()    
+            self.filemenu.entryconfigure(2, label="Close Tutorial")
+            self.state = 1
+       
           
 if __name__ == '__main__':
     root = tk.Tk()
