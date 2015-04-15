@@ -11,19 +11,8 @@ class SchemeText(tk.Text):
         '''Sets the values of the tags and key press handler.'''
 
         tk.Text.__init__(self, *args, **kwargs)
-        self.tag_configure("paren", background="#633cff")
-        self.tag_configure("keyword", foreground="#0000ff")
-        self.tag_configure("operator", foreground="#00ff00")
         self.bind("<KeyRelease>", self.key)
         self.bind("<ButtonRelease>", self.key)
-
-    def configure_colors(self, background=None, text=None, \
-                        keyword=None, operator=None, parenthesis=None):
-        if background != None: self.configure(background=background)
-        if text != None: self.configure(foreground=text)
-        if keyword != None: self.tag_configure("keyword", foreground=keyword)
-        if operator != None: self.tag_configure("operator", foreground=operator)
-        if parenthesis != None: self.tag_configure("paren", background=parenthesis)
 
     def highlight_pattern(self, pattern, tag):
         '''Colors pattern with the color from tag.'''
@@ -92,10 +81,10 @@ class SchemeText(tk.Text):
 
         def color_paren(index):
             # Applies color to paren located at index
-            self.tag_add("paren", index)
+            self.tag_add("paren_highlight", index)
 
         # Clear existing tags
-        self.tag_remove("paren", '1.0', 'end')
+        self.tag_remove("paren_highlight", '1.0', 'end')
 
         # Get current cursor position
         current_position = self.index(tk.INSERT)
