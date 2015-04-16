@@ -103,6 +103,14 @@ class SchemeIDETest(unittest.TestCase):
         ranges_str = [str(x) for x in ranges]
         self.assertEqual(['1.3', '1.4', '1.10', '1.11'], ranges_str)
 
+    def test_color_profiles(self):
+        '''Verifies color profiles in the editor.'''
+        self.app.editor.delete('1.0', 'end')
+        self.app.editor.insert('end', 'lambda xyz')
+        self.app.colorprofile.setcolor("keyword", "#123456")
+        tagcolor = self.app.editor.tag_cget("keyword", "foreground")
+        self.assertEqual("#123456", tagcolor)
+
     def test_double_arrow(self): 
         '''Test for same line arrow output issue.'''  
 

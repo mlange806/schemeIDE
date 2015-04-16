@@ -29,6 +29,10 @@ class Colorprofile():
             self.colors[tag] = color
             self.root.colorprofile_updated()
 
+    def setcolor(self, tag, color):
+        self.colors[tag] = color
+        self.root.colorprofile_updated()
+
     def save_profile(self, parent, testMode=False, path=None):
         if not testMode: path = tk.filedialog.asksaveasfilename(parent=parent)
         if path == None or path == "": return
