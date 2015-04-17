@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter.colorchooser import *
 import json
 
 class Colorprofile():
@@ -24,7 +25,7 @@ class Colorprofile():
         self.root = root
 
     def pickcolor(self, tag):
-        color = tk.colorchooser.askcolor()[1]
+        color = askcolor()[1]
         if color != None:
             self.colors[tag] = color
             self.root.colorprofile_updated()
