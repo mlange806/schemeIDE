@@ -11,6 +11,23 @@ class Colorprofile():
         scheme_text.tag_configure("operator", foreground=self.colors["operator"])
         scheme_text.tag_configure("paren_highlight", background=self.colors["paren_highlight"])
 
+    def update_tutorial(self, tutorial):
+        def common_bgandfg(element):
+            element.configure(foreground=self.colors["text"])
+            element.configure(background=self.colors["background"])
+
+        tutorial.configure(background=self.colors["background"])
+        tutorial.titleframe.configure(background=self.colors["background"])
+        tutorial.bottomframe.configure(background=self.colors["background"])
+        common_bgandfg(tutorial.title)
+        common_bgandfg(tutorial.lesson_sel)
+        common_bgandfg(tutorial.prev)
+        common_bgandfg(tutorial.next)
+        common_bgandfg(tutorial.instr)
+        common_bgandfg(tutorial.check)
+        common_bgandfg(tutorial.feedback)
+
+
     def __init__(self, root):
         # Initialize default colors
         self.colors = dict()

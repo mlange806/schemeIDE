@@ -14,18 +14,18 @@ class Tutorial(tk.Frame):
     def __init__(self, shell, master=None, *args, **kwargs):
         '''Constructor that loads the course and sets up everything.'''    
 
-        tk.Frame.__init__(self, master, bg='black', *args, **kwargs)
-        titleframe = tk.Frame(self, bg='black')
-        bottomframe = tk.Frame(self, bg='black')
-        titleframe.pack(side='top')
-        bottomframe.pack(side='bottom')
+        tk.Frame.__init__(self, master, *args, **kwargs)
+        self.titleframe = tk.Frame(self)
+        self.bottomframe = tk.Frame(self)
+        self.titleframe.pack(side='top')
+        self.bottomframe.pack(side='bottom')
 
         self.shell = shell
         self.section_no = 1
         self.lesson_no = 1
             
         #Create the title frame
-        self.title = tk.Text(titleframe, height=1, bg='black', fg='white', width=30, borderwidth=0)       
+        self.title = tk.Text(self.titleframe, height=1, width=30, borderwidth=0)       
         self.title.config(state='disabled')
 
         self.menu_option = tk.StringVar(self)
@@ -33,11 +33,11 @@ class Tutorial(tk.Frame):
         self.menu_option.trace("w", self.set_lesson)
         self.ops = ['wow']
         
-        self.lesson_sel = tk.OptionMenu(titleframe, self.menu_option, self.ops)
-        self.lesson_sel.config(bg = "BLACK", fg = "WHITE", bd=0, highlightbackground='black')
+        self.lesson_sel = tk.OptionMenu(self.titleframe, self.menu_option, self.ops)
+        self.lesson_sel.config(bd=0, highlightbackground='black')
 
-        self.prev = tk.Button(titleframe, text='<-', bg='black', fg='white', width=4, height=1, command=self.next_section)
-        self.next = tk.Button(titleframe, text='->', bg='black', fg='white', width=4, height=1, command=self.next_section)
+        self.prev = tk.Button(self.titleframe, text='<-', width=4, height=1, command=self.next_section)
+        self.next = tk.Button(self.titleframe, text='->', width=4, height=1, command=self.next_section)
  
         self.title.pack(side='left')
         self.lesson_sel.pack(side='left')
@@ -45,13 +45,13 @@ class Tutorial(tk.Frame):
         self.next.pack(side='left')
 
         #Create instruction section
-        self.instr = tk.Text(self, height=40, bg='black', fg='white', width=50)
+        self.instr = tk.Text(self, height=40, width=50)
         self.instr.config(state='disabled')
         self.instr.pack(side='top')        
 
         #Create the bottom frame
-        self.check = tk.Button(bottomframe, text='Check Answer', bg='black', fg='white', width=10, height=3, command=self.check_result)    
-        self.feedback = tk.Text(bottomframe, height=3, bg='black', fg='white', width=40, borderwidth=0)
+        self.check = tk.Button(self.bottomframe, text='Check Answer', width=10, height=3, command=self.check_result)    
+        self.feedback = tk.Text(self.bottomframe, height=3, width=40, borderwidth=0)
         self.feedback.insert('end', 'You have not submitted an answer yet...')
         self.feedback.config(state='disabled')
             
