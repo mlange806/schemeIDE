@@ -1,5 +1,4 @@
 import tkinter as tk
-from scheme_text import *
 
 class SchemeTextLineNumbered(SchemeText):
     def __init__(self, *args, **kwargs):
