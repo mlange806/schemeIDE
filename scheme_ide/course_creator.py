@@ -42,19 +42,29 @@ class CourseCreator(tk.Frame):
         self.section_frame.bind("<Configure>", self.OnFrameConfigure)
 
         self.x = 0
-        
-        section_name = tk.Label(self.section_frame, text="Section Name: ", width=15).grid(row=self.x, column=0)
-        section_input = tk.Text(self.section_frame, height=1, width=30).grid(row=self.x, column=1)
 
-        instr_name = tk.Label(self.section_frame, text="Instructions: ", width=15).grid(row=self.x+1, column=0)
-        instr_input = tk.Text(self.section_frame, height=5, width=30).grid(row=self.x+1, column=1)
-        # Here it where it ends
+        self.section_list = []
+        
+        section_name = tk.Label(self.section_frame, text="Section Name: ", width=15)
+        section_name.grid(row=self.x, column=0)
+        section_input = tk.Text(self.section_frame, height=1, width=30)
+        section_input.grid(row=self.x, column=1)
+
+        instr_name = tk.Label(self.section_frame, text="Instructions: ", width=15)
+        instr_name.grid(row=self.x+1, column=0)
+        instr_input = tk.Text(self.section_frame, height=5, width=30)
+        instr_input.grid(row=self.x+1, column=1)
+
+        self.section_list.append((section_name, section_input, instr_name, instr_input))
+        # Here is where it ends
 
         
         frame = tk.Frame(root)
         frame.pack(side='top')
         add_section = tk.Button(frame, text='+ Add Section', command=self.add_section)
         add_section.pack(side='left')
+        rm_section = tk.Button(frame, text='- Remove Section', command=self.rm_section)
+        rm_section.pack(side='left')
 
         w = tk.Label(root, text=seperator)
         w.pack(side='top')
@@ -74,11 +84,26 @@ class CourseCreator(tk.Frame):
 
     def add_section(self):
         self.x = self.x + 1
-        section_name = tk.Label(self.section_frame, text="Section Name: ", width=15).grid(row=self.x, column=0)
-        section_input = tk.Text(self.section_frame, height=1, width=30).grid(row=self.x, column=1)
+        section_name = tk.Label(self.section_frame, text="Section Name: ", width=15)
+        section_name.grid(row=self.x, column=0)
+        section_input = tk.Text(self.section_frame, height=1, width=30)
+        section_input.grid(row=self.x, column=1)
 
-        instr_name = tk.Label(self.section_frame, text="Instructions: ", width=15).grid(row=self.x+1, column=0)
-        instr_input = tk.Text(self.section_frame, height=5, width=30).grid(row=self.x+1, column=1)
+        instr_name = tk.Label(self.section_frame, text="Instructions: ", width=15)
+        instr_name.grid(row=self.x+1, column=0)
+        instr_input = tk.Text(self.section_frame, height=5, width=30)
+        instr_input.grid(row=self.x+1, column=1)
+
+        self.section_list.append((section_name, section_input, instr_name, instr_input))
+
+    def rm_section(self):
+        if self.x == 0:
+            return
+        else:
+            for i in range(4):
+                self.section_list[self.x][i].grid_forget()
+            del self.section_list[self.x]
+            self.x = self.x - 1
 
     def OnFrameConfigure(self, event):
         self.section_canvas.configure(scrollregion=self.section_canvas.bbox("all"))
