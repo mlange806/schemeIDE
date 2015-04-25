@@ -15,20 +15,27 @@ class CourseCreator(tk.Frame):
         for x in range(80): seperator = seperator + '_'
         w = tk.Label(root, text=seperator)
         w.pack(side='top')
-
+ 
+        # Add a scroll here too
         frame = tk.Frame(root)
         frame.pack(side='top')
-        lesson_name = tk.Label(frame, text="Lesson Name: ", width=15)
-        lesson_name.pack(side="left")
-        lesson_input = tk.Text(frame, height=1, width=30)
-        lesson_input.pack(side="left")
 
-        w = tk.Label(root, text=seperator)
-        w.pack(side='top')
+        self.lesson_canvas = tk.Canvas(frame)
+        self.lesson_frame = tk.Frame(self.lesson_canvas)
+        self.lesson_scroll = tk.Scrollbar(frame, orient="vertical", command=self.lesson_canvas.yview)
+        self.lesson_canvas.configure(yscrollcommand=self.lesson_scroll.set)
+
+        
+
+        lesson_name = tk.Label(self.lesson_frame, text="Lesson Name: ", width=15)
+        lesson_name.grid(row=0, column=0)
+        lesson_input = tk.Text(self.lesson_frame, height=1, width=30)
+        lesson_input.grid(row=0, column=1)
+        # End Lesson Scroll
 
         # Here is where the scroll maddness begins
-        frame = tk.Frame(root)
-        frame.pack(side='top')
+        frame = tk.Frame(self.lesson_canvas)
+        frame.grid(row=1, column=0)
     
         self.section_canvas = tk.Canvas(frame)
         self.section_frame = tk.Frame(self.section_canvas, height=10)
@@ -56,6 +63,12 @@ class CourseCreator(tk.Frame):
         instr_input.grid(row=self.x+1, column=1)
 
         self.section_list.append((section_name, section_input, instr_name, instr_input))
+
+        self.lesson_scroll.pack(side='right', fill='y')
+        self.lesson_canvas.pack(side='right', fill="both", expand=True)
+        self.lesson_canvas.create_window((2,2), window=self.lesson_frame, anchor="nw", 
+                                  tags="self.lesson_frame")
+        self.lesson_frame.bind("<Configure>", self.OnFrameConfigure)
         # Here is where it ends
 
         
