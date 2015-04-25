@@ -41,6 +41,8 @@ class SchemeIDE(tk.Frame):
     def colorprofile_updated(self):
         self.colorprofile.update_scheme_text(self.editor)
         self.colorprofile.update_scheme_text(self.console)
+        if hasattr(self, 'tutorial'):
+            self.colorprofile.update_tutorial(self.tutorial)
 
     def create_toolbar(self, r):
         '''Creates a toolbar with a pull down menu.'''
@@ -113,9 +115,10 @@ class SchemeIDE(tk.Frame):
         if self.state == 0:
             self.master.maxsize(width=1000, height=400)           
             self.tutorial = Tutorial(self.console, master=self.leftframe)
+            self.colorprofile_updated()
             self.tutorial.pack()
             self.filemenu.entryconfigure(2, label="Close Tutorial")
-            self.state = 1 
+            self.state = 1
 
         elif self.state == 1:
             self.tutorial.pack_forget()
