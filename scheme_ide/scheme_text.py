@@ -1,4 +1,5 @@
 import tkinter as tk
+import re
 
 class SchemeText(tk.Text):
     '''
@@ -7,10 +8,11 @@ class SchemeText(tk.Text):
     Text widget that does (basic) keyword coloring for Scheme text.
     '''
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, reference_highlighting_callback=None, *args, **kwargs):
         '''Sets the values of the tags and key press handler.'''
 
         tk.Text.__init__(self, *args, **kwargs)
+        self.reference_highlighting_callback = reference_highlighting_callback
         self.bind("<KeyRelease>", self.key)
         self.bind("<ButtonRelease>", self.key)
 
@@ -28,6 +30,83 @@ class SchemeText(tk.Text):
             self.mark_set("matchStart", index)
             self.mark_set("matchEnd", "%s+%sc" % (index, count.get()))
             self.tag_add(tag, "matchStart", "matchEnd")
+
+    def reference_highlight(self, event): 
+        def get_selected_string():
+            current_position = self.index(tk.INSERT)
+            current_line, current_col = [int(x) for x in current_position.split('.')]
+
+            def make_index(column):
+                return str(current_line) + "." + str(column)
+
+            start_col = current_col
+            while start_col > 0:
+                start_col -= 1
+                char = self.get(make_index(start_col))
+                if not (char.isalpha() or char.isdigit()):
+                    start_col += 1
+                    break
+
+            end_col = current_col
+            while True:
+                char = self.get(make_index(end_col))
+                if not (char.isalpha() or char.isdigit()):
+                    break
+                end_col += 1
+
+            return make_index(start_col), make_index(end_col)
+
+        def get_tk_instances(text):
+            results = list()
+            self.mark_set("scanStart", "1.0")
+            self.mark_set("scanEnd", self.index("end"))
+             
+            count = tk.IntVar()
+            while True:
+                index = self.search(text, "scanStart", "scanEnd",
+                                    count=count).strip()
+                if index == "": break
+                self.mark_set("scanStart", "%s+%sc" % (index, count.get()))
+                results.append(index)
+
+            return results
+
+        def get_instances(text):
+            tk_instances = get_tk_instances(text)
+            source = self.get_all()
+            source_len = len(source)
+            results = list()
+
+            for index, match in enumerate(re.finditer(text, source)):
+                start = match.start()
+                end = match.end()
+
+                if start > 0:
+                    if source[start-1].isalpha() or source[start-1].isdigit():
+                        continue
+                if end < source_len:
+                    if source[end].isalpha() or source[end].isdigit():
+                        continue
+
+                results.append((start, tk_instances[index], 0))
+
+            return results
+
+        tk_start_index, tk_end_index = get_selected_string()
+        if tk_start_index == tk_end_index: return
+        text = self.get(tk_start_index, tk_end_index)
+
+        instances = get_instances(text)
+        for instance in instances:
+            if tk_start_index == instance[1]:
+                text_start_index = instance[0]
+
+        final = (text, text_start_index, tk_start_index, instances)
+        print(final)
+
+        #print(self.get())
+        #print(text)
+        #print(get_instances(text))
 
     def paren_match(self, event):
         profiles = (("(", ")", "[(]|[)]"),)
@@ -127,6 +206,9 @@ class SchemeText(tk.Text):
 
         #Invoke parenthesis matching
         self.paren_match(event)
+
+        # Invoke reference highlighting
+        self.reference_highlight(event)
 
     def set_all(self, string):
         # Sets the contents of the text box to this string.
