@@ -30,6 +30,9 @@ reserved_words = ["+", "-", "*", "/", "define", "if", "and", "or", "not", "cond"
 #Clean up debug statements to actually be useful
 #Stack limits: (* 8 (pi-sum 1 100-1000)) stops working eventually
 
+def reference_highlight(data):
+	print(data)
+
 def run():
 #The main method that only gets invoked if evaluator.py is the calling program, for quick testing mostly
 	while(True):
@@ -368,7 +371,4 @@ def display_variables():
 	print(str(variable_definitions))
 
 def display_functions():
-	print(str(function_definitions))
-
-if(__name__ == "__main__"):
-	run()
+	print(str(function_defin                                             
