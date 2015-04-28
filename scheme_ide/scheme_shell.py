@@ -2,6 +2,7 @@ from scheme_text import SchemeText
 import evaluator as ev
 import re
 import string
+import tkinter as tk
 
 class SchemeShell(SchemeText):
     '''
@@ -13,7 +14,9 @@ class SchemeShell(SchemeText):
     def __init__(self, *args, **kwargs):
         '''Constructor for Shell object initialization.'''
 
-        super(SchemeShell, self).__init__(*args, **kwargs)
+        scrollbar = tk.Scrollbar(kwargs['master'])
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        super(SchemeShell, self).__init__(yscrollcommand=scrollbar.set, *args, **kwargs)
         
         self.line = 1
 
@@ -60,6 +63,7 @@ class SchemeShell(SchemeText):
                 except: out = 'Error!'
                 self.insert('end', str(out)+'\n')
                 self.new_line()
+                self.see(tk.END)
             else: self.new_line(output=False)
 
         #Text highlighting.
@@ -87,6 +91,7 @@ class SchemeShell(SchemeText):
             self.insert('end', 'Error!')
             self.insert('end', '\n')
         self.new_line()
+        self.see(tk.END)
     
     def new_line(self, output=True):
         '''Creates new prompt arrows in the correct place.'''        
