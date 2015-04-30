@@ -371,4 +371,7 @@ def display_variables():
 	print(str(variable_definitions))
 
 def display_functions():
-	print(str(function_defin                                             
+	print(str(function_definitions))
+
+if(__name__ == "__main__"):
+	run()
