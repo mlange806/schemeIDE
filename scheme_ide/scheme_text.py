@@ -91,7 +91,7 @@ class SchemeText(tk.Text):
                     if source[end].isalpha() or source[end].isdigit():
                         continue
 
-                results.append((start, tk_instances[index], 0))
+                results.append([start, tk_instances[index], 0])
 
             return results
 
@@ -104,12 +104,10 @@ class SchemeText(tk.Text):
             if tk_start_index == instance[1]:
                 text_start_index = instance[0]
 
-        data = (self.get_all(), text, text_start_index, tk_start_index, instances)
+        data = [self.get_all(), text, text_start_index, tk_start_index, instances]
+        print(data)
+        
         self.reference_highlighting_callback(data)
-
-        #print(self.get())
-        #print(text)
-        #print(get_instances(text))
 
     def paren_match(self, event):
         profiles = (("(", ")", "[(]|[)]"),)
