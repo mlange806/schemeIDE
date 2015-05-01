@@ -12,9 +12,10 @@ class SchemeText(tk.Text):
         '''Sets the values of the tags and key press handler.'''
 
         tk.Text.__init__(self, *args, **kwargs)
-        self.reference_highlighting_callback = reference_highlighting_callback
         self.bind("<KeyRelease>", self.key)
         self.bind("<ButtonRelease>", self.key)
+
+        self.reference_highlighting_callback = reference_highlighting_callback
 
     def highlight_pattern(self, pattern, tag):
         '''Colors pattern with the color from tag.'''
@@ -34,6 +35,12 @@ class SchemeText(tk.Text):
     def reference_highlight(self, event):
         if self.reference_highlighting_callback == None:
             return
+
+        def offset_index(index, roworcolumn, shift):
+            integers = [int(x) for x in index.split(".")]
+            integers[roworcolumn] += shift
+            if integers[roworcolumn] < 0: integers[roworcolumn] = 0
+            return str(integers[0]) + "." + str(integers[1])
         
         def get_selected_string():
             current_position = self.index(tk.INSERT)
@@ -95,19 +102,43 @@ class SchemeText(tk.Text):
 
             return results
 
+        # Clear existing tags
+        self.tag_remove("ref_selected", '1.0', 'end')
+        self.tag_remove("ref_highlight", '1.0', 'end')
+
+        # Get index and text of highlighted string
         tk_start_index, tk_end_index = get_selected_string()
         if tk_start_index == tk_end_index: return
         text = self.get(tk_start_index, tk_end_index)
 
+        # Skip highlighting if the text is numeric
+        try:
+            float(text)
+            return
+        except:
+            pass
+
+        # Get offset/tk-index pair for each instance of the text
         instances = get_instances(text)
+
+        # Skip highlighting if there is only one instance
+        if len(instances) <= 1: return
+
+        # Get the text start index for the selected element
         for instance in instances:
             if tk_start_index == instance[1]:
                 text_start_index = instance[0]
 
         data = [self.get_all(), text, text_start_index, tk_start_index, instances]
-        print(data)
-        
+
+        #print(data)
         self.reference_highlighting_callback(data)
+
+        for instance in data[4]:
+            if instance[2] == 1:
+                self.tag_add("ref_highlight", instance[1], offset_index(instance[1], 1, len(text)))
+            elif instance[2] == 2:
+                self.tag_add("ref_selected", instance[1], offset_index(instance[1], 1, len(text)))
 
     def paren_match(self, event):
         profiles = (("(", ")", "[(]|[)]"),)
@@ -211,12 +242,4 @@ class SchemeText(tk.Text):
         # Invoke reference highlighting
         self.reference_highlight(event)
 
-    def set_all(self, string):
-        # Sets the contents of the text box to this string.
-        self.delete(1.0, tk.END)
-        self.insert(1.0, string)
-
-    def get_all(self):
-        # Returns full contents of the text box.
-        return self.get(1.0, tk.END)
-
+    def set_all(self, st                                                                                                                                                                                                                                                           
