@@ -537,4 +537,30 @@ def reference_highlight(data):
 			else:
 				instances[count][2] = 1
 			count += 1
-	return (data[0], data[1], data[2],                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+	return (data[0], data[1], data[2], data[3], instances)
+   
+def addscopes(exp):
+	global scope, count, scopetokens
+	if(not isinstance(exp, str) and len(exp) > 0):
+		if(exp[0] == "define" or exp[0] == "lambda"):
+			scope += "arg" + str(count) + "/"
+			count += 1
+			for e in exp:
+				addscopes(e)
+			upscope()
+		else:
+			for e in exp:
+				addscopes(e)
+	else:
+		scopetokens.append(scope + exp)
+
+def tokenize_linear(exp):
+	if(not isinstance(exp, str) and len(exp) > 0):
+		for e in exp:
+			tokenize_linear(e)
+	else:
+		tokens.append(exp)
+   
+   
+if(__name__ == "__main__"):
+	run()

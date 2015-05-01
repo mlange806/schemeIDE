@@ -103,7 +103,7 @@ class SchemeText(tk.Text):
             return results
 
         # Clear existing tags
-        self.tag_remove("ref_selected", '1.0', 'end')
+        self.tag_remove("ref_definition", '1.0', 'end')
         self.tag_remove("ref_highlight", '1.0', 'end')
 
         # Get index and text of highlighted string
@@ -131,14 +131,15 @@ class SchemeText(tk.Text):
 
         data = [self.get_all(), text, text_start_index, tk_start_index, instances]
 
-        #print(data)
+        #print("Pre-callback data:" + str(data))
         self.reference_highlighting_callback(data)
+        #print("Post-callback data:" + str(data))
 
         for instance in data[4]:
             if instance[2] == 1:
                 self.tag_add("ref_highlight", instance[1], offset_index(instance[1], 1, len(text)))
             elif instance[2] == 2:
-                self.tag_add("ref_selected", instance[1], offset_index(instance[1], 1, len(text)))
+                self.tag_add("ref_definition", instance[1], offset_index(instance[1], 1, len(text)))
 
     def paren_match(self, event):
         profiles = (("(", ")", "[(]|[)]"),)
@@ -242,4 +243,11 @@ class SchemeText(tk.Text):
         # Invoke reference highlighting
         self.reference_highlight(event)
 
-    def set_all(self, st                                                                                                                                                                                                                                                           
+    def set_all(self, string):
+        # Sets the contents of the text box to this string.
+        self.delete(1.0, tk.END)
+        self.insert(1.0, string)
+
+    def get_all(self):
+        # Returns full contents of the text box.
+        return self.get(1.0, tk.END)

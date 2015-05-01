@@ -67,7 +67,7 @@ class SchemeIDE(tk.Frame):
         colormenu.add_command(label="Keywords", command=lambda: self.colorprofile.pickcolor("keyword"))
         colormenu.add_command(label="Operators", command=lambda: self.colorprofile.pickcolor("operator"))
         colormenu.add_command(label="Parenthesis", command=lambda: self.colorprofile.pickcolor("paren_highlight"))
-        colormenu.add_command(label="Selected Reference", command=lambda: self.colorprofile.pickcolor("ref_selected"))
+        colormenu.add_command(label="Reference Definition", command=lambda: self.colorprofile.pickcolor("ref_definition"))
         colormenu.add_command(label="Highlighted Reference", command=lambda: self.colorprofile.pickcolor("ref_highlight"))
         self.menubar.add_cascade(label="Colors", menu=colormenu)
 

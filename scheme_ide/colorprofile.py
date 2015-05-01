@@ -10,7 +10,7 @@ class Colorprofile():
         scheme_text.tag_configure("keyword", foreground=self.colors["keyword"])
         scheme_text.tag_configure("operator", foreground=self.colors["operator"])
         scheme_text.tag_configure("paren_highlight", background=self.colors["paren_highlight"])
-        scheme_text.tag_configure("ref_selected", background=self.colors["ref_selected"])
+        scheme_text.tag_configure("ref_definition", background=self.colors["ref_definition"])
         scheme_text.tag_configure("ref_highlight", background=self.colors["ref_highlight"])
 
     def update_tutorial(self, tutorial):
@@ -38,7 +38,7 @@ class Colorprofile():
         self.colors["keyword"] = "#0000ff"
         self.colors["operator"] = "#00ff00"
         self.colors["paren_highlight"] = "#633cff"
-        self.colors["ref_selected"] = "#D1697A"
+        self.colors["ref_definition"] = "#D1697A"
         self.colors["ref_highlight"] = "#DB8896"
 
         # Provides "colorprofile_updated" function
