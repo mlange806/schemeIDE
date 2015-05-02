@@ -1,0 +1,285 @@
+#!displayexceptions
+#These tests try to generate every possible error in the evaluator
+#---------------------------------------------------------------
+!begin error
+s : !
+(+ 5 "string") : !
+(+ 7 (< 3 4)) : !
+(- '(1 2) 5) : !
+(- 5 '(1 2)) : !
+(- 8 (lambda)) : !
+(* -8.5 (>= 5 8)) : !
+(* cons 15) : !
+(/ (cons 1 2)) : !
+(/ 5 '(2)) : !
+(/ -4.54 984 11.1 0) : !
+(/ 2 ()) : !
+(if 15 5 4) : !
+(if (and (< 5 6) 1) 7 3) : !
+(or (cons 1 2) (and (< 3 5) (>= 3 2.5))) : !
+(not 5) : !
+(cond ('(1 2) 0) ((> -4.8 0) 1) ((< -4.8 0) -1) (else 1)) : !
+(cond ((>= -4.8 0) 1) ((> -4.8 0) -1)) : !
+(> 5 (< 3 4)) : !
+(< -3.4 '(1 2 3)) : !
+(= (lambda (x) (* x x)) 7) : !
+(<= (cons 1 2) 5) : !
+(>= 0) : !
+(car '()) : !
+(cdr (+ 4 5 (- 3 4))) : !
+(cons 1 2 3) : !
+(2 3 4) : !
+(define (func x) (+ (* x x) (* x x x))) :
+(func 7 5) : !
+(define (sqrt x) (define (good-enough? guess x) (< (abs (- (square guess) x)) 0.001)) (define (improve guess x) (average guess (/ x guess))) (define (sqrt-iter guess x) (if (good-enough? guess x) guess (sqrt-iter (improve guess x) x)) (sqrt-iter 1.0 x)) : !
+(/ 0) : !
+!end error
+
+!hideexceptions
+#Tests from The Structure and Interpretation of Computer Programs
+#http://mitpress.mit.edu/sicp/full-text/book/book.html
+#---------------------------------------------------------------
+!begin SICP
+
+#Section 1.1
+486 : 486
+(+ 137 349) : 486
+(- 1000 334) : 666
+(* 5 99) : 495
+#(/ 10 5) : 2
+(+ 2.7 10) : 12.7
+(+ 21 35 12 7) : 75
+(* 25 4 12) : 1200
+(+ (* 3 5) (- 10 6)) : 19
+(+ (* 3 (+ (* 2 4) (+ 3 5))) (+ (- 10 7) 6)) : 57
+(define size 2)
+size : 2
+(* 5 size) : 10
+(define pi 3.14159)
+(define radius 10)
+(* pi (* radius radius)) : 314.15900
+(define circumference (* 2 pi radius))
+circumference : 62.83180
+(define (square x) (* x x))
+(square 21) : 441
+(square (+ 2 5)) : 49
+(square (square 3)) : 81
+(define (sum-of-squares x y)(+ (square x) (square y)))
+(sum-of-squares 3 4) : 25
+(define (f a)(sum-of-squares (+ a 1) (* a 2)))
+(f 5) : 136
+(define (abs x) (cond ((> x 0) x) ((= x 0) 0) ((< x 0) (- x))))
+(define (abs x)(cond ((< x 0) (- x))(else x)))
+(define (abs x) (if (< x 0) (- x) x))
+(define x 7)
+(and (> x 5) (< x 10)) : #t
+(define (>= x y) (or > x y) (= x y))
+(define (>= x y)(not (< x y)))
+(define (average x y)(/ (+ x y) 2))
+(define (improve guess x)(average guess (/ x guess)))
+(define (good-enough? guess x)(< (abs (-(square guess) x)) 0.001))
+(define (sqrt-iter guess x)(if (good-enough? guess x) guess(sqrt-iter (improve guess x) x)))
+(define (sqrt x) (sqrt-iter 1.0 x))
+(sqrt 9) : 3.000091554131380178530556192
+#(sqrt (+ 100 37)) : 11.70469991775814352594298683
+#(sqrt (+ (sqrt 2) (sqrt 3))) : 1.773927902320789248871042253
+#(square (sqrt 1000)) : 1000.000369924366029478056076
+#(define (sqrt x) (define (good-enough? guess x) (< (abs (- (square guess) x)) 0.001)) (define (improve guess x) (average guess (/ x guess))) (define (sqrt-iter guess x) (if (good-enough? guess x) guess (sqrt-iter (improve guess x) x))) (sqrt-iter 1.0 x))
+
+#Section 1.2
+(define (factorial n) (if (= n 1) 1 (* n (factorial (- n 1)))))
+(define (fact-iter product counter max-count)(if (> counter max-count)product(fact-iter (* counter product)(+ counter 1)max-count)))
+(define (factorial n)(fact-iter 1 1 n))
+(define (fib-iter a b count)(if (= count 0)b(fib-iter (+ a b) a (- count 1))))
+(define (fib n)(fib-iter 1 0 n))
+(define (first-denomination kinds-of-coins)(cond ((= kinds-of-coins 1) 1)((= kinds-of-coins 2) 5)((= kinds-of-coins 3) 10)((= kinds-of-coins 4) 25)((= kinds-of-coins 5) 50)))
+(define (cc amount kinds-of-coins)(cond ((= amount 0) 1)((or (< amount 0) (= kinds-of-coins 0)) 0)(else (+ (cc amount(- kinds-of-coins 1))(cc (- amount(first-denomination kinds-of-coins))kinds-of-coins)))))
+(define (count-change amount)(cc amount 5))
+#(count-change 10) : 4
+(define (cube x) (* x x x))
+(define (p x) (- (* 3 x) (* 4 (cube x))))
+(define (sine angle) (if (not (> (abs angle) 0.1)) angle (p (sine (/ angle 3.0)))))
+#(sine 12.15) : -0.399803457413343457766879638
+(define (gcd a b)(if (= b 0)a(gcd b (remainder a b))))
+(define (expmod base exp m) (cond ((= exp 0) 1) ((even? exp) (remainder (square (expmod base (/ exp 2) m)) m)) (else (remainder (* base (expmod base (- exp 1) m)) m)))) 
+(define (fermat-test n) (define (try-it a) (= (expmod a n n) a)) (try-it (+ 1 (random (- n 1)))))
+(define (fast-prime? n times) (cond ((= times 0) true) ((fermat-test n) (fast-prime? n (- times 1))) (else false)))
+(define (divides? a b)(= (remainder b a) 0))
+(define (find-divisor n test-divisor)(cond ((> (square test-divisor) n) n)((divides? test-divisor n) test-divisor)(else (find-divisor n (+ test-divisor 1)))))
+(define (smallest-divisor n)(find-divisor n 2))
+(define (prime? n)(= n (smallest-divisor n)))
+
+#Section 1.3
+(define (cube x) (* x x x)) : 
+(define (sum term a next b)(if (> a b) 0(+ (term a)(sum term (next a) next b))))
+(define (inc n) (+ n 1))
+(define (sum-cubes a b)(sum cube a inc b))
+(sum-cubes 1 10) :3025
+(define (identity x) x)
+(define (sum-integers a b)(sum identity a inc b))
+(sum-integers 1 10) : 55
+(define (pi-term x)(/ 1.0 (* x (+ x 2))))
+(define (pi-next x)(+ x 4))
+(define (pi-sum a b)(sum pi-term a pi-next b))
+#(* 8 (pi-sum 1 100)) : 3.121594652591010478513182974
+#(define (pi-sum a b)(define (pi-term x)(/ 1.0 (* x (+ x 2)))) (define (pi-next x)(+ x 4))(sum pi-term a pi-next b))
+#(define (pi-sum a b) (sum (lambda (x) (/ 1.0 (* x (+ x 2)))) a (lambda (x) (+ x 4)) b))
+((lambda (x y z) (+ x y (square z))) 1 2 3) : 12
+(define (f g) (g 2))
+(f square) : 4
+(f (lambda (z) (* z (+ z 1)))) : 6
+(define (integral f a b dx) (* (sum f (+ a (/ dx 2.0)) (lambda (x) (+ x dx)) b) dx))
+(integral cube 0 1 0.1) : 0.2487500
+(define plus4 (lambda (x) (+ x 4)))
+(define (average-damp f) (lambda (x)(average x (f x))))
+((average-damp square) 10) : 55.0
+(define dx 0.00001)
+(define (deriv g) (lambda (x) (/ (- (g (+ x dx)) (g x)) dx)))
+((deriv cube) 5) : 75.0001500001
+!end SICP
+
+#These tests were generated with an Equivalence Value Partitioning strategy, where valid and invalid inputs were chosen for every supported function
+#---------------------------------------------------------------
+!begin EVP
+#Valid tests
+(+ 7 5 18.4 -3 11 0 0 5) : 43.4
+(- -14) : 14
+(* 1 2 3 4 5.5 -1) : -132.0
+(/ 10 2 2) : 2.5
+(> 0 (- 8 -5)) : #f
+(< 15 -8.6) : #f
+(= (* 2 2) (+ 2 2)) : #t
+(>= (* 2.1 100) (* 100.1 2)) : #t
+(<= 0 (* 1 2 3 4 0 5)) : #t
+(if (< 5 1) 17 -35) : -35
+(remainder -16.5 4) : -0.5
+(define (floor x) (if (>= x 0) (- x (remainder x 1)) (- x 1 (remainder x 1))))
+(floor 7.3) : 7.0
+(floor 0) : 0
+(floor -6.543243) : -7.000000
+(and (< 3 5) (> 3 0)) : #t
+(or (< -3 0) (> -3 0)) : #t
+(not (= 5 (+ 5 1))) : #t
+(* -4.8 (cond ((> -4.8 0) 1) ((< -4.8 0) -1) (else 1))) : 4.8
+(quote (1 2 2.2 2.4 3)) : '(1 2 2.2 2.4 3)
+(car '((-5 a) (+ 1) a 0 5)) : '(-5 a)
+(cdr (car '((-5 a) (+ 1) a 0 5))) : '(a)
+(cons 1 -4.5) : '(1 -4.5)
+(list 0 1.1 2.2 3 4) : '(0 1.1 2.2 3 4)
+(list 0 1 (1.1 1.2) 3 4) : '(0 1 (1.1 1.2) 3 4)
+(null? '()) : #t
+(define (polynomial-add x) ((lambda (y) (+ (* y y 5) (- (* 3 y)) 2)) (+ x 1)))
+(polynomial-add 2) : 38
+
+#Invalid (error-generating) tests
+(+) : !
+(- +) : !
+(*) : !
+(/ 8 0) : !
+(> 5 undec) : !
+(< 3) : !
+= 3 (+ 2 1) (/ 6 2) : !
+(> = 7 0) : !
+(<=) : !
+(if (- 3 5)) : !
+(remainder (< 1 2) 5) : !
+(define (square x) (x * x) : !
+(and 1 2) : !
+(or) : !
+(not -4.3) : !
+(cond  : !
+(* 1 '(2 3 4)) : !
+(car 5) : !
+(cdr '()) : !
+(cons 1 2 3) : !
+(list a b c : !
+(null? null?) : !
+(lambda x) : !
+!end EVP
+
+#These tests come from bugs that have been encountered in the process of writing the evaluator.
+#Whenever a bug is found by someone typing Scheme code into the editor or going through the program, a test case is added to ensure that bug is fixed.
+#The test cases for a fixed bug are left here to perform regression testing .
+#---------------------------------------------------------------
+!begin regression
+(+  4 1 : !
+(2 2) : !
+(+ 3 5 : !
+(- 4 5)): !
++: !
+(+ .1 a) : !
+(- 99 a) : !
+(* 0 a) : !
+(/ 12 a) : !
+(/ -13 0) : !
+(+ 1.5 '(1 2)) : !
+(* 11 (list 1 2)) : !
+(- 7 (cons 1 2)): !
+(/ (> 1 2) 3) : !
+(/ 0 3) : 0.0
+(+ 1 '2) : 3
+(- 5) : -5
+(- 5 -3 (- 4)) : 12
+(* (+ 2 (* 4 6))  (+ 3 5 7)) : 390
+(sum-of-squares (square 3) (square 4)) : 337
+(define (seven x) 7)
+(seven 5) : 7
+(define a 3) :
+(define b (+ a 1)) :
+(+ a b (* a b)) : 19
+(> a b) : #f
+(if (and (> b a) (< b (* a b))) b a) : 4
+(cond ((= a 4) 6) ((= b 4) (+ 6 7 a)) (else 25)) : 16
+(+ 2 (if (> b a) b a)) : 6
+(* (cond ((> a b) a) ((< a b) b) (else -1)) (+ a 1)) : 16
+(cond ((< 3 1) 5) ((> 1 3) 7)) : !
+(abs 7) : 7
+(abs -8.2) : 8.2
+(abs (- 5 (+ 2 3))) : 0
+(define (abs x) (if (< x 0) (- x) x))
+(cond ((> 5 3) 5 3) (else 4)) : 3
+(cond ((< 2 1) 5) (else 4 3 2)) : 2
+(abs 7) : 7
+(abs -8.2) : 8.2
+(abs (- 5 (+ 2 3))) : 0
+(define (^ base exp) (if (= exp 0) 1 (* base (^ base (- exp 1)))))
+(^ 17 0) : 1
+(^ -2 7) : -128
+(^ 3 4) : 81
+(define (fact x) (if (= 0 x) 1 (* x (fact (- x 1)))))
+(fact 0) : 1
+(fact 1) : 1
+(fact 6) : 720
+(factorial 0) : 1
+(factorial 1) : 1
+(factorial 6) : 720
+(define (fib n)(cond ((= n 0) 0)((= n 1) 1)(else (+ (fib (- n 1))(fib (- n 2))))))
+(fib 0) : 0
+(fib 1) : 1
+(fib 9) : 34
+(fib 0) : 0
+(fib 1) : 1
+(fib 9) : 34
+(remainder 11 4) : 3
+(gcd 24 116) : 4
+(prime? 2) : #t
+(prime? 1) : #t
+(prime? 17) : #t
+(prime? 24) : #f
+(>= 7 5) : #t
+(>= 3.4 3.4) : #t
+(>= pi 4) : #f
+(>= 7 5) : #t
+(>= 3.4 3.4) : #t
+(>= pi 4) : #f
+(define (list-ref items n) (if (= n 0) (car items) (list-ref (cdr items) (- n 1))))
+(define squares (list 1 4 9 16 25))
+(list-ref squares 3): 16
+(define (length items) (if (null? items) 0  (+ 1 (length (cdr items)))))
+(define odds (list 1 3 5 7))
+(length odds): 4
+(length '(1 2 (3 4 5) 6 (7))) : 5
+(define (lamb x y z) (+ x y (square z)))
+(lamb 1 2 3) : 12
+(plus4 7) : 11
+!end regression
