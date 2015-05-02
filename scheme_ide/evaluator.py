@@ -10,18 +10,7 @@ from decimal import *
 #The basic functionality of the evaluator is to detect functions, then apply those functions to their arguments
 #More information can be found on the Team 8 blog
 #
-#Clear all the defines first, recursively, then what's left is the definition - scoping
-#Difference between ints and strings of ints:(+ 1 '2) should be 3 instead of an exception
 #
-			if(exp[0] == '!'):
-				if(exp[1:] == "displayfuncs"):
-					display_functions()
-				elif(exp[1:] == "displayvars"):
-					display_variables()
-			else:
-				try:
-				except Exception as e:
-					print(str(e))
 
 definitions = dict()
 #definitions stores the state of the evaluator - every user-defined function and variable is stored here
@@ -31,6 +20,7 @@ definitions = dict()
 #To get the value of a variable or the body of a function, be careful to use definitions[<variable_or_function_name>][1], [0] will get the number of arguments
 """Reads a string expression which is then parsed into a 'tree' represented by a python list and evaluated - see __parse() and __eval()
 If there are multiple expressions, each is evaluated independently and the result is returned as a list"""
+def evaluate(expression):
 	try:
 		expr = __parse(expression) #Begin by parsing the expression so it can be evaluated
 	except Exception as e: #If the expression is syntactically inorrect, we can't evaluate it so just error here.
@@ -178,6 +168,7 @@ def __eval_function(expression):
 			return __eval(consequent)
 		elif(predicate == "#f"):
 			return __eval(alternative)
+		else:
 			__wrong("Improper form in predicate of 'if': <{0}>".format(list_print(predicate))) #test_input:17
 			
 	elif(function_name == "and"):
@@ -350,13 +341,6 @@ def __eval_function(expression):
 			return "#t"
 		else:
 			return "#f"
-	elif(function_name == "remainder"):
-		return eval(expression[1]) % eval(expression[2])
-	elif(function_name == "lambda"):
-		debug_print(str(expression))
-		return escape_args(expression[1], expression[2])
-	else:
-		wrong("<{0}> is not a valid operator in expression <{1}>.".format(expression[0], expression))
 			
 	elif(function_name == "remainder"):
 	#Syntax for remainder is (remainder <expression1> <expression2>)
@@ -368,11 +352,6 @@ def __eval_function(expression):
 	#Syntax for lambda is (lambda (<arg1> <arg2> ... <argN>) <function_body>)
 	#The arguments and the function body get passed to __escape_args(), which creates the function and returns it
 		return __escape_args(expression[1], expression[2])
-	debug_print("Applying <{0}> to <{1}>".format(body, args))
-	given_args = len(args)
-	if(required_args != given_args):
-		wrong("Incorrect number of arguments for function <{0}>: The function takes {1} argument{2} but {3} were given".format(function_name, required_args, "s"*(1 - (int)(1/required_args)), given_args))
-	body = unescape_args(args, fun_body)
 		
 	else:
 	#If it's not a user-defined function or a predefined function, throw an exception
@@ -433,7 +412,6 @@ def __unescape_args(args, fun_body):
 			if(body[body_index][0] == '{' and body[body_index][-1] == '}'):
 				arg_index = int(body[body_index][1:-1])
 				body[body_index] = args[arg_index]
-	debug_print("Unescaping: " + str(body))
 	return body
 
 """This method converts the quote form '(1 2 3) to (quote (1 2 3)) - the apostrophe form is syntactic sugar for the quote function anyway, and this maintains consistency with the standard Scheme syntax to make eval() easier to write."""
@@ -612,70 +590,6 @@ def reference_highlight(data):
 	#data[3] is the position of the atom in the window, which we do not use
 	#data[4] is a list of instances of the format [<text_position>, <window_position>, 0]
 	#This list of instances will be modified: The third element will be set to 2 if that instance is the definition of the atom, and set to 1 if it is a reference to the same atom
-
-tokens, scopetokens = [], []
-scope = ""
-count = 0
-def reference_highlight(data):
-	global tokens
-	text = data[0]
-	exp = parse(text)
-	tokenize_linear(exp)
-	addscopes(exp)
-	start_index = data[2]
-	instances = data[4]
-	reference_name = data[1]
-	reference_index = -1
-	for i in range(len(instances)):
-		if(instances[i][0] == start_index):
-			reference_index = i
-			break
-	if(reference_index == -1):
-		print("Error, something went wrong with " + str(data))
-	print("Reference name: {0}, reference index: {1}".format(reference_name, reference_index))
-	tokenindex = -1
-	count = -1
-	for i in range(len(tokens)):
-		tokenindex += 1
-		if(tokens[i] == reference_name):
-			count += 1
-			if(reference_index == count):
-				break
-	scope_name = scopetokens[tokenindex]
-	firstflag = True
-	count = 0
-	for i in range(len(tokens)):
-		if(tokens[i] == reference_name and scopetokens[i] == scope_name):
-			if(firstflag):
-				instances[count][2] = 2
-				firstflag = False
-			else:
-				instances[count][2] = 1
-			count += 1
-	return (data[0], data[1], data[2], data[3], instances)
-   
-def addscopes(exp):
-	global scope, count, scopetokens
-	if(not isinstance(exp, str) and len(exp) > 0):
-		if(exp[0] == "define" or exp[0] == "lambda"):
-			scope += "arg" + str(count) + "/"
-			count += 1
-			for e in exp:
-				addscopes(e)
-			upscope()
-		else:
-			for e in exp:
-				addscopes(e)
-	else:
-		scopetokens.append(scope + exp)
-
-def tokenize_linear(exp):
-	if(not isinstance(exp, str) and len(exp) > 0):
-		for e in exp:
-			tokenize_linear(e)
-	else:
-		tokens.append(exp)
-   
 	
 	global tokens, count, scopetokens
 	tokens = []

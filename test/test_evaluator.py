@@ -1,5 +1,6 @@
+import sys, os
+sys.path.append(os.path.join('..', 'scheme_ide'))
 from evaluator import *
-
 
 #The test method runs all the tests in test_input.txt and prints out the results
 #Each line of test_input.txt is one of the following:
