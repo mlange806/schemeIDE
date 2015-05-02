@@ -53,7 +53,7 @@ class SchemeIDETest(unittest.TestCase):
         self.app.editor.insert('end', "!!!")
         self.app.run_code()
         result = self.app.console.get("4.0", "4.6")
-        self.assertEqual(result, 'Error!', 'Console did not output None.')
+        self.assertEqual(result, 'Error:', 'Console did not output Error.')
 
         self.app.editor.delete('1.0', 'end')
         self.app.editor.insert('end', "(+ (* 6 6) 18)")
@@ -165,62 +165,12 @@ class SchemeIDETest(unittest.TestCase):
         self.app.console.insert('3.3', '!!!')
         self.app.press_key('\r', 'console')
         out = self.app.console.get('4.0', '4.6')
-        self.assertEqual(out, 'Error!')
+        self.assertEqual(out, 'Error:')
 
         self.app.console.insert('5.3', '(* (+ 18 19) 200)')
         self.app.press_key('\r', 'console')
         out = self.app.console.get('6.0', '6.4')
         self.assertEqual(out, '7400')
-
-    def test_tutorial_feedback_on_correct(self):
-        '''Tests that tutorial can identify correct output (e.g. 4)'''
-        
-        self.app.create_tutorial()
-        tutorial = self.app.tutorial()
-        console = self.app.console()
-
-        #Simulate a user typing in input.
-        console.insert('1.3', '(+ 2 2)')
-        self.app.press_key('\r', 'console')
-        
-        #Simulate a user checking his answer.
-        tutorial.check()
-        
-        self.assertTrue(tutorial.feedback())
-
-    def test_tutorial_feedback_on_incorrect(self):
-        '''Tests that tutorial can identify incorrect output (e.g. 3)'''
-        
-        self.app.create_tutorial()
-        tutorial = self.app.tutorial()
-        console = self.app.console()
-
-        #Simulate a user typing in input.
-        console.insert('1.3', '(+ 1 2)')
-        self.app.press_key('\r', 'console')
-        
-        #Simulate a user checking his answer.
-        tutorial.check()
-        
-        self.assertTrue(not tutorial.feedback())
-
-    def test_tutorial_creation(self):
-        '''Unit test for Tutorial constructor method.'''
-
-        tutorial = Tutorial(self.root)
-
-        self.assertTrue('tutorial' in locals())
-        self.assertTrue(hasattr(tutorial, 'title'))
-        self.assertTrue(type(tutorial.title) is tk.Text)
- 
-        self.assertTrue(hasattr(tutorial, 'instr'))
-        self.assertTrue(type(tutorial.instr) is tk.Text)
-
-        self.assertTrue(hasattr(tutorial, 'check'))
-        self.assertTrue(type(tutorial.check) is tk.Button)
-
-        self.assertTrue(hasattr(tutorial, 'feedback'))
-        self.assertTrue(type(tutorial.feedback) is tk.Text)
     
     def test_blank_shell_input(self):
         '''Test for issue where inputing only non-alphanumberic characters broke the shell.'''
@@ -229,27 +179,12 @@ class SchemeIDETest(unittest.TestCase):
         out = self.app.console.get('2.0', '2.2')
         self.assertEqual(out, '>>')
 
-    def test_misplaced_error_message(self):
-        '''Test for issue where an error message was misplaced after evaluating invalid code in the editor.'''
-
-        self.app.editor.insert('end', 'gibberish')
-        self.app.run_code()
-        out = self.app.console.get('1.0', 'end')
-        self.assertEqual(out, '>> run\nError!\n>> \n')
     def test_blank_shell_input(self):
         '''Test for issue where inputing only non-alphanumberic characters broke the shell.'''
         
         self.app.press_key('\r', 'console')
         out = self.app.console.get('2.0', '2.2')
         self.assertEqual(out, '>>')
-
-    def test_misplaced_error_message(self):
-        '''Test for issue where an error message was misplaced after evaluating invalid code in the editor.'''
-
-        self.app.editor.insert('end', 'gibberish')
-        self.app.run_code()
-        out = self.app.console.get('1.0', 'end')
-        self.assertEqual(out, '>> run\nError!\n>> \n')
 
 class EventStub: 
     '''Pretend event stub for methods that take an event argument.'''
