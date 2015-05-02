@@ -37,22 +37,32 @@ class SchemeTextLineNumbered(SchemeText):
         # Set up the scrollbar
         self.lastPosition = 0
         self.dropupdate = False
-        def updateposition(position):
-            #print("updateposition: " + str(position))
+
+        def textviewchange(*args):
+            '''Either the line text or main text triggered a scroll event.
+            Make sure the line text, main text, and scrollbar all reflect
+            the new position.'''
+
+            # A spurious update event is generated during line number text
+            #   refresh. This is used to ignore that event.
             if self.dropupdate:
                 self.dropupdate = False
                 return
+
+            # Update positions
+            self.scrollbar.set(*args)
+            position = float(args[0])
             self.yview("moveto", str(position))
             self.linetext.yview("moveto", str(position))
             self.lastPosition = position
-        def textviewchange(*args):
-            #print("textviewchange: " + str(args))
-            updateposition(float(args[0]))
-            self.scrollbar.set(*args)
+
         def scrollviewchange(*args):
-            #print("scrollviewchange: " + str(args))
+            '''The scrollbar triggered a scroll event. Make sure the line text
+            and main text reflect the new position.'''
             self.yview(*args)
             self.linetext.yview(*args)
+
+        # Register for scroll events
         self.config(yscrollcommand=textviewchange)
         self.linetext.config(yscrollcommand=textviewchange)
         self.scrollbar.config(command=scrollviewchange)
@@ -62,7 +72,11 @@ class SchemeTextLineNumbered(SchemeText):
 
     def update_line_numbers(self):
         def display_lines_for_actual_line(actual_line, available_pixels):
+            '''Returns the number of lines required to display the string'''
+
             def get_residual(string, available_pixels):
+                '''Return the characters that won't fit on the line'''
+
                 whitespace_tally = 0
 
                 for index, character in enumerate(string):
@@ -79,6 +93,8 @@ class SchemeTextLineNumbered(SchemeText):
 
                 return None
 
+            # Call get_residual until the string is consumed, and count
+            #   the number of calls required
             line_count = 0
             residual = actual_line
             while True:
@@ -89,6 +105,7 @@ class SchemeTextLineNumbered(SchemeText):
             return line_count
         
         def generate_line_numbers(tktext):
+            '''Generate the string to display in line number text box'''
             available_pixels = tktext.winfo_width() - 10
             actual_lines = tktext.get(1.0, tk.END).split("\n")[:-1]
 
@@ -105,15 +122,19 @@ class SchemeTextLineNumbered(SchemeText):
             
             return output
 
+        # Replace text in line number box with updated version
         data = generate_line_numbers(self)
         self.linetext.config(state='normal')
         self.linetext.delete('1.0', tk.END)
         self.linetext.insert('1.0', data)
         self.linetext.config(state='disabled')
 
+        # Restore previous scroll position and set flag to ignore the
+        #   spurious scroll event it triggers
         self.linetext.yview("moveto", str(self.lastPosition))
         self.dropupdate = True
 
+        # Schedule the next update
         self.after(100, self.update_line_numbers)
 
     def pack(self, *args, **kwargs):

@@ -67,6 +67,8 @@ class SchemeIDE(tk.Frame):
         colormenu.add_command(label="Keywords", command=lambda: self.colorprofile.pickcolor("keyword"))
         colormenu.add_command(label="Operators", command=lambda: self.colorprofile.pickcolor("operator"))
         colormenu.add_command(label="Parenthesis", command=lambda: self.colorprofile.pickcolor("paren_highlight"))
+        colormenu.add_command(label="Reference Definition", command=lambda: self.colorprofile.pickcolor("ref_definition"))
+        colormenu.add_command(label="Highlighted Reference", command=lambda: self.colorprofile.pickcolor("ref_highlight"))
         self.menubar.add_cascade(label="Colors", menu=colormenu)
 
         self.menubar.add_command(label="Run", command=self.run_code)
@@ -76,7 +78,8 @@ class SchemeIDE(tk.Frame):
     def create_editor(self, r):
         '''Creates a text box that a user can type code into.'''
 
-        self.editor = SchemeTextLineNumbered(master=self.rightframe, height=20, width=40)
+        self.editor = SchemeTextLineNumbered(master=self.rightframe,
+                reference_highlighting_callback = ev.reference_highlight, height=20, width=40)
         self.editor.pack(fill=tk.BOTH, expand=1)
         
     def create_console(self, r):
