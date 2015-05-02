@@ -1,4 +1,3 @@
-
 import os
 
 print('\n...Testing the IDE...\n')
