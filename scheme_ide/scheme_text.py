@@ -8,7 +8,7 @@ class SchemeText(tk.Text):
     Text widget that does (basic) keyword coloring for Scheme text.
     '''
 
-    def __init__(self, reference_highlighting_callback=None, *args, **kwargs):
+    def __init__(self, *args, reference_highlighting_callback=None, **kwargs):
         '''Sets the values of the tags and key press handler.'''
 
         tk.Text.__init__(self, *args, **kwargs)
@@ -33,22 +33,29 @@ class SchemeText(tk.Text):
             self.tag_add(tag, "matchStart", "matchEnd")
 
     def reference_highlight(self, event):
+        '''Update tags for reference highlighting.'''
+
+        # If the callback provided to constructor was None, reference highlighting
+        # is disabled.
         if self.reference_highlighting_callback == None:
             return
 
         def offset_index(index, roworcolumn, shift):
+            '''Quick function to modify tkinter indices.'''
             integers = [int(x) for x in index.split(".")]
             integers[roworcolumn] += shift
             if integers[roworcolumn] < 0: integers[roworcolumn] = 0
             return str(integers[0]) + "." + str(integers[1])
         
         def get_selected_string():
+            '''Get the tkinter start and end indices of the string the cursor is on.'''
             current_position = self.index(tk.INSERT)
             current_line, current_col = [int(x) for x in current_position.split('.')]
 
             def make_index(column):
                 return str(current_line) + "." + str(column)
 
+            # Scan backward on the line until non-alphanumeric char is reached
             start_col = current_col
             while start_col > 0:
                 start_col -= 1
@@ -57,6 +64,7 @@ class SchemeText(tk.Text):
                     start_col += 1
                     break
 
+            # Scan forward on the line until non-alphanumeric char is reached
             end_col = current_col
             while True:
                 char = self.get(make_index(end_col))
@@ -67,10 +75,12 @@ class SchemeText(tk.Text):
             return make_index(start_col), make_index(end_col)
 
         def get_tk_instances(text):
+            '''Get the tkinter start indices of every instance of text.'''
             results = list()
             self.mark_set("scanStart", "1.0")
             self.mark_set("scanEnd", self.index("end"))
-             
+
+            # Perform tkinter scan of document for instances of text
             count = tk.IntVar()
             while True:
                 index = self.search(text, "scanStart", "scanEnd",
@@ -82,11 +92,15 @@ class SchemeText(tk.Text):
             return results
 
         def get_instances(text):
+            ''' Get both the tkinter indices and the absolute indices of every
+            instance of text.'''
+
             tk_instances = get_tk_instances(text)
             source = self.get_all()
             source_len = len(source)
             results = list()
 
+            # Scan document string for instances of text
             for index, match in enumerate(re.finditer(text, source)):
                 start = match.start()
                 end = match.end()
@@ -98,6 +112,7 @@ class SchemeText(tk.Text):
                     if source[end].isalpha() or source[end].isdigit():
                         continue
 
+                # Match up the corresponding tkinter instance
                 results.append([start, tk_instances[index], 0])
 
             return results
@@ -129,12 +144,22 @@ class SchemeText(tk.Text):
             if tk_start_index == instance[1]:
                 text_start_index = instance[0]
 
+        # Pass the data to the evaluator in the following format:
+        # full document text, highlighted keyword string, absolute start index of
+        #   the highlighted keyword string, tkinter start index of the highlighted
+        #   keyword string, and list of other instances of the keyword.
+        # Each instance in the instance list is of the format: absolute start index,
+        #   tkinter start index, and highlight type. The highlight type defaults
+        #   to 0 and can be modified by this call to either 1 or 2 to request
+        #   reference highlight or definition highlight, respectively.
         data = [self.get_all(), text, text_start_index, tk_start_index, instances]
 
         #print("Pre-callback data:" + str(data))
         self.reference_highlighting_callback(data)
         #print("Post-callback data:" + str(data))
 
+        # Perform the actual reference highlighting based on the data provided by
+        # by the evaluator. 1 = reference highlight, 2 = definition highlight
         for instance in data[4]:
             if instance[2] == 1:
                 self.tag_add("ref_highlight", instance[1], offset_index(instance[1], 1, len(text)))
@@ -142,16 +167,20 @@ class SchemeText(tk.Text):
                 self.tag_add("ref_definition", instance[1], offset_index(instance[1], 1, len(text)))
 
     def paren_match(self, event):
-        profiles = (("(", ")", "[(]|[)]"),)
+        '''Update tags for parenthesis highlighting.'''
         
+        profiles = (("(", ")", "[(]|[)]"),)
+
         def offset_index(index, roworcolumn, shift):
+            '''Quick function to modify tkinter indices.'''
             integers = [int(x) for x in index.split(".")]
             integers[roworcolumn] += shift
             if integers[roworcolumn] < 0: integers[roworcolumn] = 0
             return str(integers[0]) + "." + str(integers[1])
 
         def paren_scan(pattern, start, end=None):
-            # Returns list of parens matching regex pattern within range
+            '''Returns list of parens matching regex pattern within range'''
+
             result = list()
             
             self.mark_set("scanStart", start)
@@ -169,20 +198,26 @@ class SchemeText(tk.Text):
             return result
 
         def locate_match(index):
-            # Locates the counterpart, if it exists, to paren located at index
+            '''Locates the counterpart, if it exists, to paren located at index'''
             char = self.get(index)
             scanresults = None
             for profile in profiles:
                 if char == profile[0]:
+                    # Open paren: Get all parens starting 1 char to the right,
+                    #   and set the direction to forward
                     scanresults = paren_scan(profile[2], index+"+1c")
                     direction = 1
                     break
                 elif char == profile[1]:
+                    # Close paren: Get all parens between document start and this one,
+                    #   and set the direction to backward
                     scanresults = reversed(paren_scan(profile[2], "1.0", index))
                     direction = -1
                     break
             if scanresults == None: return None
 
+            # Tally the parens until closure is achieved, and return the tkinter index
+            #   of the closing paren
             tally = 1
             for scanresult in scanresults:
                 if scanresult[0] == profile[0]: tally += direction
